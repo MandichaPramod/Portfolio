@@ -1,0 +1,1270 @@
+﻿@{
+    
+    @model StockDetailsResponseModel;
+
+    ViewData["Title"] = $"{Model.stockdetails.Name} Details";
+
+    double TotalCost = 0;
+    double CurrentValue = 0;
+    double TotalPnL = 0;
+    double Dividend = 0;
+    double DividendReinvest = 0;
+    double Quantity = 0;
+
+    var yearlyStocks = new List<BreakDownRow>();
+    var monthlyStocks = new List<BreakDownRow>();
+    var stockdetails = Model.stockdetails;
+
+    foreach (var items in Model.stockTransactions)
+    {
+        Quantity = Quantity + items.Quantity;
+        TotalCost = TotalCost + items.TotalCost;
+        CurrentValue = CurrentValue + items.CurrentValue;
+        TotalPnL = CurrentValue - TotalCost;
+        Dividend = Dividend + items.Dividend;
+        DividendReinvest = DividendReinvest + items.DividendReinvestment;
+
+        if(yearlyStocks.Any(x=>x.Date.Year == items.Date.Year))
+        {
+            var pf = yearlyStocks.First(x => x.Date.Year ==  items.Date.Year);
+
+                    
+            pf.CurrentValue = pf.CurrentValue+items.CurrentValue;
+            pf.Dividend = pf.Dividend+items.Dividend;
+            pf.TotalCost = pf.TotalCost+items.TotalCost;
+            pf.DividendReinvestment = pf.DividendReinvestment+items.DividendReinvestment;
+        }
+        else
+        {
+            yearlyStocks.Add(new BreakDownRow()
+            {
+                Date = items.Date,
+                CurrentValue = items.CurrentValue,
+                Dividend = items.Dividend,
+                TotalCost = items.TotalCost,
+                DividendReinvestment = items.DividendReinvestment,
+            });
+        }
+        if(monthlyStocks.Any(x=>x.Date.Year == items.Date.Year && x.Date.Month == items.Date.Month))
+        {
+            var pf = monthlyStocks.First(x => x.Date.Year ==  items.Date.Year && x.Date.Month == items.Date.Month);
+
+                    
+            pf.CurrentValue = pf.CurrentValue+items.CurrentValue;
+            pf.Dividend = pf.Dividend+items.Dividend;
+            pf.TotalCost = pf.TotalCost+items.TotalCost;
+            pf.DividendReinvestment = pf.DividendReinvestment+items.DividendReinvestment;
+        }
+        else
+        {
+            monthlyStocks.Add(new BreakDownRow()
+            {
+                Date = items.Date,
+                CurrentValue = items.CurrentValue,
+                Dividend = items.Dividend,
+                TotalCost = items.TotalCost,
+                DividendReinvestment = items.DividendReinvestment,
+            });
+        }
+    }
+
+    double positionalBuy = 0;
+    double positionalSell = 0;
+    double realisedProfit = 0;
+    double realisedProfitafterCharges = 0;
+    double realisedDividend = 0;
+
+    double DeliverypositionalBuy = 0;
+    double DeliverypositionalSell = 0;
+    double DeliveryrealisedProfit = 0;
+    double DeliveryrealisedProfitafterCharges = 0;
+    double DeliveryrealisedDividend = 0;
+
+    double IntradaypositionalBuy = 0;
+    double IntradaypositionalSell = 0;
+    double IntradayrealisedProfit = 0;
+    double IntradayrealisedProfitafterCharges = 0;
+    double IntradayrealisedDividend = 0;
+
+    foreach (var items in Model.stockTrades)
+    {
+        positionalBuy = positionalBuy + items.TotalCost;
+        positionalSell = positionalSell + items.SellValue;
+        realisedProfit = realisedProfit + items.PnL;
+        realisedProfitafterCharges = realisedProfitafterCharges + items.PnLAfterCharges;
+        realisedDividend = realisedDividend + items.Dividend;
+
+        if(items.Type == "Delivery")
+        {
+            DeliverypositionalBuy = DeliverypositionalBuy + items.TotalCost;
+            DeliverypositionalSell = DeliverypositionalSell + items.SellValue;
+            DeliveryrealisedProfit = DeliveryrealisedProfit + items.PnL;
+            DeliveryrealisedProfitafterCharges = DeliveryrealisedProfitafterCharges + items.PnLAfterCharges;
+            DeliveryrealisedDividend = DeliveryrealisedDividend + items.Dividend;
+        }
+        else if(items.Type == "Intraday")
+        {
+            IntradaypositionalBuy = IntradaypositionalBuy + items.TotalCost;
+            IntradaypositionalSell = IntradaypositionalSell + items.SellValue;
+            IntradayrealisedProfit = IntradayrealisedProfit + items.PnL;
+            IntradayrealisedProfitafterCharges = IntradayrealisedProfitafterCharges + items.PnLAfterCharges;
+            IntradayrealisedDividend = IntradayrealisedDividend + items.Dividend;
+        }
+    }
+
+    double bankDividend = 0;
+    foreach (var items in Model.dividendDetails)
+    {
+        bankDividend = bankDividend + items.Dividend;
+    }
+}
+    <!--<meta http-equiv="refresh" content="120" />-->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-TX8t27EcRE3e/ihU7zmQWjPAF68JH5QVUNf7Dgkz8U5kW3VXRdaKJH31SIE5ZHE+" crossorigin="anonymous">
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+7E7LBk6aME04wZz8cXENBO2DQyRk" crossorigin="anonymous"></script>
+<script src="~/js/Sortable.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+<script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+<style>
+    /* Set height of the grid so .sidenav can be 100% (adjust as needed) */
+    .row.content {height: 550px}
+    
+    /* Set gray background color and 100% height */
+    .sidenav {
+      background-color: #f1f1f1;
+      height: 100%;
+    }
+        
+    /* On small screens, set height to 'auto' for the grid */
+    @@media screen and (max-width: 767px) {
+      .row.content {height: auto;} 
+    }
+  </style>
+
+
+<div class="container-fluid">
+  <div class="container mt-5">
+    <!-- Stock Details Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card text-center shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title">@stockdetails.Name</h4>
+                    <p class="card-text">@stockdetails.Symbol</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stock Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-center mb-3">Stock Overview</h5>
+        </div>
+
+        <!-- Current Market Price -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">CMP</h6>
+                    <p class="card-text">@stockdetails.CMP</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Change -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Change(Change %)</h6>
+                    <p class="card-text">@(System.Math.Round(stockdetails.Change, 2))(@stockdetails.ChangePercent%)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Volume -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Volume</h6>
+                    <p class="card-text">@(System.Math.Round(stockdetails.Volume, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Cap -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Market Cap</h6>
+                    <p class="card-text">@stockdetails.MarketCap.ToString("N2")</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- EPS -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Earnings Per Share</h6>
+                    <p class="card-text">@(System.Math.Round(stockdetails.EarningsPerShare, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Price to Earnings -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Price to Earnings</h6>
+                    <p class="card-text">@(System.Math.Round(stockdetails.PriceToEarnings, 2))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+
+        <!-- Open -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Open</h6>
+                    <p class="card-text">@stockdetails.Open</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Previous Close -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Previous Close</h6>
+                    <p class="card-text">@stockdetails.CloseYest</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- High -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">High</h6>
+                    <p class="card-text">@stockdetails.High</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">low</h6>
+                    <p class="card-text">@stockdetails.Low</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 52W High -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">52W High</h6>
+                    <p class="card-text">@(System.Math.Round(stockdetails.High52W, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 52W Low -->
+        <div class="col-md-2 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">52W Low</h6>
+                    <p class="card-text">@(System.Math.Round(stockdetails.Low52W, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+
+
+    <!-- Active Overview Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-center mb-3">Active Overview</h5>
+        </div>
+
+        <!-- Total Quantity -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Total Quantity</h6>
+                    <p class="card-text">@Quantity</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Invested -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Total Invested</h6>
+                    <p class="card-text">@(System.Math.Round(TotalCost, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current Value -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Current Value</h6>
+                    <p class="card-text">@(System.Math.Round(CurrentValue, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Unrealized Profit/Loss -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Unrealized Profit/Loss</h6>
+                    <p class="card-text">@(System.Math.Round(TotalPnL, 2))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Realized Financials Section -->
+    <div class="row">
+        <div class="col-12">
+            <h5 class="text-center mb-3">Realized Info</h5>
+        </div>
+
+        <!-- Realized Buy -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Buy</h6>
+                    <p class="card-text">@(System.Math.Round(positionalBuy, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realized Sell -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Sell</h6>
+                    <p class="card-text">@(System.Math.Round(positionalSell, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realized Profit/Loss -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Profit/Loss</h6>
+                    <p class="card-text">@(System.Math.Round(realisedProfit, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit After Charges -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Profit After Charges</h6>
+                    <p class="card-text">@(System.Math.Round(realisedProfitafterCharges, 2))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Realized Delivery Financials Section -->
+    <div class="row">
+        <div class="col-12">
+            <h5 class="text-center mb-3">Realized Delivery Info</h5>
+        </div>
+
+        <!-- Realized Buy -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Delivery Buy</h6>
+                    <p class="card-text">@(System.Math.Round(DeliverypositionalBuy, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realized Sell -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Delivery Sell</h6>
+                    <p class="card-text">@(System.Math.Round(DeliverypositionalSell, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realized Profit/Loss -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Delivery Profit/Loss</h6>
+                    <p class="card-text">@(System.Math.Round(DeliveryrealisedProfit, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit After Charges -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Profit After Charges</h6>
+                    <p class="card-text">@(System.Math.Round(DeliveryrealisedProfitafterCharges, 2))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Realized Intraday Financials Section -->
+    <div class="row">
+        <div class="col-12">
+            <h5 class="text-center mb-3">Realized Intraday Info</h5>
+        </div>
+
+        <!-- Realized Buy -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Intraday Buy</h6>
+                    <p class="card-text">@(System.Math.Round(IntradaypositionalBuy, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realized Sell -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Intraday Sell</h6>
+                    <p class="card-text">@(System.Math.Round(IntradaypositionalSell, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Realized Profit/Loss -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Realized Intraday Profit/Loss</h6>
+                    <p class="card-text">@(System.Math.Round(IntradayrealisedProfit, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit After Charges -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Profit After Charges</h6>
+                    <p class="card-text">@(System.Math.Round(IntradayrealisedProfitafterCharges, 2))</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dividends Section -->
+    <div class="row">
+        <div class="col-12">
+            <h5 class="text-center mb-3">Dividends Info</h5>
+        </div>
+
+        <!-- Dividend Unrealized -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Dividend Unrealized</h6>
+                    <p class="card-text">@(System.Math.Round(Dividend ,2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dividend realised -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Dividend Realized</h6>
+                    <p class="card-text">@(System.Math.Round(realisedDividend ,2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reinvested -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Reinvested</h6>
+                    <p class="card-text">@(System.Math.Round(DividendReinvest, 2))</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dividend from Bank -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Dividend(from Bank)</h6>
+                    <p class="card-text">@(System.Math.Round(bankDividend, 2))</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</div>
+
+<div id="layoutSidenav">
+    <div id="layoutSidenav_content">
+                <main>
+                    <div class="container-fluid px-4">
+                       
+                        <!--Row1-->
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Investments
+                                    </div>
+                                    <div class="card-body"><canvas id="myAreaChart" width="100%" height="40"></canvas></div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <i class="fas fa-chart-bar me-1"></i>
+                                        Yearly Chart
+                                    </div>
+                                    <div class="card-body"><canvas id="myBarChartYearly" width="100%" height="40"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!--Row2-->
+                        <div class="row">
+                            <div class="col-xl-12"> 
+                                <div class="card mb-4">
+                                    <div class="card-header">
+                                        <i class="fas fa-chart-bar me-1"></i>
+                                        Monthly Chart
+                                    </div>
+                                    <div class="card-body"><canvas id="myBarChart" width="100%" height="40"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Investment History
+                            </div>
+                            <div class="card-body">
+                                <table id="datatablesSimple">
+                                    <thead>
+                                        <tr>
+                                            <th class="tg-amwm">Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Current Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Dividend Reinvestment</th>
+                                            <th class="tg-amwm">Portfolio</th>
+                                            <th class="tg-amwm">Tag</th>
+                                            <th class="tg-amwm">Ageing</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                             <th class="tg-amwm">Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Current Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Dividend Reinvestment</th>
+                                            <th class="tg-amwm">Portfolio</th>
+                                            <th class="tg-amwm">Tag</th>
+                                            <th class="tg-amwm">Ageing</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                         @foreach (var transaction in Model.stockTransactions)
+                                        {
+                                        <tr>
+                                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>  
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.CurrentValue, 2))</td>
+                            
+                            @if ((transaction.CurrentValue-transaction.TotalCost) > 0)
+                            {
+                                @if ((System.Math.Round((((transaction.CurrentValue-transaction.TotalCost)) / transaction.TotalCost), 2)) > 10)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                            }
+                            else
+                            {
+                                @if ((System.Math.Round((((transaction.CurrentValue-transaction.TotalCost)) / 100), 2)) < -10)
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+
+                            }
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.DividendReinvestment, 2))</td>
+                            <td class="tg-57iy">@transaction.Portfolio</td>
+                            <td class="tg-57iy">@transaction.Tag</td>
+                            <td class="tg-57iy">@transaction.Ageing</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="row">
+                         <div class="card mb-4">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Realised History
+                            </div>
+                            <div class="card-body">
+                                <table id="datatablesSimple2">
+                                    <thead>
+                                        <tr>
+                                            <th class="tg-amwm">Sell Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Sell Price</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Sell Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">% Profit/Loss</th>
+                                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                                            <th class="tg-amwm">Total Charges</th>
+                                            <th class="tg-amwm">Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="tg-amwm">Sell Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Sell Price</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Sell Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">% Profit/Loss</th>
+                                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                                            <th class="tg-amwm">Total Charges</th>
+                                            <th class="tg-amwm">Type</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                         @foreach (var transaction in Model.stockTrades)
+                                        {
+                                            double PnLAfterCharges = System.Math.Round((transaction.PnL - transaction.TotalCharges), 2);
+                        double PnLAfterChargesPercent = System.Math.Round((PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                                        <tr>
+                                            <td class="tg-57iy">@transaction.SellDate.ToShortDateString()</td>
+                                            <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                            @if (transaction.PnL > 0)
+                            {
+                                @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2))</td>
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                            }
+                            else
+                            {
+                                @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+
+                            }
+                            @if (PnLAfterCharges > 0)
+                            {
+                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                            }
+                            else
+                            {
+                                <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                            }
+                            <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+                            <td class="tg-57iy">@transaction.Type</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="row">
+                             <div class="col-md-6">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Realised Delivery
+                            </div>
+                            <div class="card-body">
+                                <table id="datatablesSimple6">
+                                    <thead>
+                                        <tr>
+                                            <th class="tg-amwm">Sell Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Sell Price</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Sell Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">% Profit/Loss</th>
+                                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                                            <th class="tg-amwm">Total Charges</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="tg-amwm">Sell Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Sell Price</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Sell Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">% Profit/Loss</th>
+                                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                                            <th class="tg-amwm">Total Charges</th>
+                                            
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                         @foreach (var transaction in Model.stockTrades)
+                                        {
+                                            if(transaction.Type != "Delivery")
+                                            {
+                                                continue;
+                                            }
+                                            double PnLAfterCharges = System.Math.Round((transaction.PnL - transaction.TotalCharges), 2);
+                        double PnLAfterChargesPercent = System.Math.Round((PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                                        <tr>
+                                            <td class="tg-57iy">@transaction.SellDate.ToShortDateString()</td>
+                                            <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                            @if (transaction.PnL > 0)
+                            {
+                                @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2))</td>
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                            }
+                            else
+                            {
+                                @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+
+                            }
+                            @if (PnLAfterCharges > 0)
+                            {
+                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                            }
+                            else
+                            {
+                                <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                            }
+                            <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                         <div class="col-md-6">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Realised Intraday
+                            </div>
+                            <div class="card-body">
+                                <table id="datatablesSimple5">
+                                    <thead>
+                                        <tr>
+                                            <th class="tg-amwm">Sell Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Sell Price</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Sell Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">% Profit/Loss</th>
+                                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                                            <th class="tg-amwm">Total Charges</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="tg-amwm">Sell Date</th>
+                                            <th class="tg-amwm">Quantity</th>
+                                            <th class="tg-amwm">Buy Price</th>
+                                            <th class="tg-amwm">Sell Price</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                            <th class="tg-amwm">Total Cost</th>
+                                            <th class="tg-amwm">Sell Value</th>
+                                            <th class="tg-amwm">Profit/Loss</th>
+                                            <th class="tg-amwm">% Profit/Loss</th>
+                                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                                            <th class="tg-amwm">Total Charges</th>
+                                            
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                         @foreach (var transaction in Model.stockTrades)
+                                        {
+                                            if(transaction.Type != "Intraday")
+                                            {
+                                                continue;
+                                            }
+                                            double PnLAfterCharges = System.Math.Round((transaction.PnL - transaction.TotalCharges), 2);
+                        double PnLAfterChargesPercent = System.Math.Round((PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                                        <tr>
+                                            <td class="tg-57iy">@transaction.SellDate.ToShortDateString()</td>
+                                            <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                            @if (transaction.PnL > 0)
+                            {
+                                @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2))</td>
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                            }
+                            else
+                            {
+                                @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                }
+
+                            }
+                            @if (PnLAfterCharges > 0)
+                            {
+                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                            }
+                            else
+                            {
+                                <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                            }
+                            <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="row">
+                             <div class="col-md-6">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Dividend
+                            </div>
+                            <div class="card-body">
+                                <table id="datatablesSimple4">
+                                    <thead>
+                                        <tr>
+                                            <th class="tg-amwm">Ex-Date</th>
+                                            <th class="tg-amwm">Dividend per Share</th>
+                                            <th class="tg-amwm">Total Dividend</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="tg-amwm">Ex-Date</th>
+                                            <th class="tg-amwm">Dividend per Share</th>
+                                            <th class="tg-amwm">Total Dividend</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                         @foreach (var transaction in Model.dividendRawlist)
+                                        {
+                                            
+                                        <tr>
+                                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                                            <td class="tg-57iy">@(System.Math.Round(@transaction.DividendPerShare, 2))</td>
+                                            <td class="tg-57iy">@(System.Math.Round(@transaction.TotalDividend, 2))</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                         <div class="col-md-6">
+                            <div class="card-header">
+                                <i class="fas fa-table me-1"></i>
+                                Dividend History(from Bank)
+                            </div>
+                            <div class="card-body">
+                                <table id="datatablesSimple3">
+                                    <thead>
+                                        <tr>
+                                            <th class="tg-amwm">Date</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th class="tg-amwm">Date</th>
+                                            <th class="tg-amwm">Dividend</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                         @foreach (var transaction in Model.dividendDetails)
+                                        {
+                                            
+                                        <tr>
+                                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                        </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <script> window.addEventListener('DOMContentLoaded', event => {
+    // Simple-DataTables
+    // https://github.com/fiduswriter/Simple-DataTables/wiki
+
+    const datatablesSimple = document.getElementById('datatablesSimple');
+    if (datatablesSimple) {
+        new simpleDatatables.DataTable(datatablesSimple);
+    }
+
+    const datatablesSimple2 = document.getElementById('datatablesSimple2');
+    if (datatablesSimple2) {
+        new simpleDatatables.DataTable(datatablesSimple2);
+    }
+
+    const datatablesSimple3 = document.getElementById('datatablesSimple3');
+    if (datatablesSimple3) {
+        new simpleDatatables.DataTable(datatablesSimple3);
+    }
+
+    const datatablesSimple4 = document.getElementById('datatablesSimple4');
+    if (datatablesSimple4) {
+        new simpleDatatables.DataTable(datatablesSimple4);
+    }
+
+    const datatablesSimple5 = document.getElementById('datatablesSimple5');
+    if (datatablesSimple5) {
+        new simpleDatatables.DataTable(datatablesSimple5);
+    }
+
+    const datatablesSimple6 = document.getElementById('datatablesSimple6');
+    if (datatablesSimple6) {
+        new simpleDatatables.DataTable(datatablesSimple6);
+    }
+});</script>
+
+<script>// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+
+// Area Chart Example
+var ctx = document.getElementById("myAreaChart");
+var labels = @Html.Raw(Json.Serialize(Model.stockTransactions.Select(x => x.Date.ToString("MMM d"))));
+var data = @Html.Raw(Json.Serialize(Model.stockTransactions.Select(x => x.BuyPrice)));
+var currentdata = @Html.Raw(Json.Serialize(Model.stockTransactions.Select(x => x.CurrentValue/x.Quantity)));
+var quantity = @Html.Raw(Json.Serialize(Model.stockTransactions.Select(x => x.Quantity)));
+
+// Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.max(Math.max(...data),Math.max(...currentdata)) * 1.1); // Add 10% padding for visual clarity
+
+
+var myLineChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: "Buy Price",
+      lineTension: 0.3,
+      backgroundColor: "rgba(2,117,216,0.2)",
+      borderColor: "rgba(2,117,216,1)",
+      pointRadius: 5,
+      pointBackgroundColor: "rgba(2,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: data,
+    },
+    {
+      label: "Current Price",
+      lineTension: 0.3,
+      backgroundColor: "rgba(200,117,216,0.2)",
+      borderColor: "rgba(200,117,216,1)",
+      pointRadius: 5,
+      pointBackgroundColor: "rgba(200,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "rgba(200,117,216,1)",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: currentdata,
+    },
+    {
+        label: "Quantity",
+        backgroundColor: "rgba(0,0,0,0)", // Transparent background
+        borderColor: "rgba(0,0,0,0)", // Transparent line
+        pointBackgroundColor: "rgba(0,0,0,0)", // Transparent points
+        data: quantity,
+    }
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'date'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 7
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: maxYValue,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          color: "rgba(0, 0, 0, .125)",
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      mode: 'index', // Show all tooltips at the same x-axis point
+      intersect: false // Do not restrict hover to a single point
+    }
+  }
+});</script>
+
+<script>// Set new default font family and font color to mimic Bootstrap's default styling
+Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+Chart.defaults.global.defaultFontColor = '#292b2c';
+
+// Bar Chart Example
+var ctx = document.getElementById("myBarChart");
+// Prepare data from the model
+    var groupedData = @Html.Raw(Json.Serialize(
+        Model.stockTransactions
+        .GroupBy(x => new { Month = x.Date.Month, Year = x.Date.Year })
+        .Select(g => new { 
+            Label = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMM yyyy"), // Format as "MMM yyyy"
+            TotalCost = g.Sum(x => x.TotalCost) 
+        })
+    ));
+
+    // Extract labels and data
+    var labels = groupedData.map(g => g.label); // Labels as Month-Year
+    var data = groupedData.map(g => g.totalCost); // TotalCost for each group
+
+    // Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.max(...data) * 1.1); // Add 10% padding for visual clarity
+
+var myLineChart = new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: "Investment",
+      backgroundColor: "rgba(2,117,216,1)",
+      borderColor: "rgba(2,117,216,1)",
+      data: data,
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 6
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: maxYValue,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          display: true
+        }
+      }],
+    },
+    legend: {
+      display: false
+    }
+  }
+});
+
+var ctxYearly = document.getElementById("myBarChartYearly");
+// Prepare data from the model
+    var groupedData = @Html.Raw(Json.Serialize(
+        Model.stockTransactions
+        .GroupBy(x => new {  Year = x.Date.Year })
+        .Select(g => new { 
+            Label = new DateTime(g.Key.Year, 1, 1).ToString("yyyy"), // Format as "yyyy"
+            TotalCost = g.Sum(x => x.TotalCost) 
+        })
+    ));
+
+    // Extract labels and data
+    var labels = groupedData.map(g => g.label); // Labels as Month-Year
+    var data = groupedData.map(g => g.totalCost); // TotalCost for each group
+
+    // Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.max(...data) * 1.1); // Add 10% padding for visual clarity
+
+var myLineChart = new Chart(ctxYearly, {
+  type: 'bar',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: "Investment",
+      backgroundColor: "rgba(2,117,216,1)",
+      borderColor: "rgba(2,117,216,1)",
+      data: data,
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'Year'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 6
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: maxYValue,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          display: true
+        }
+      }],
+    },
+    legend: {
+      display: false
+    }
+  }
+});
+</script>

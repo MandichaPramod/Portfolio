@@ -1,0 +1,798 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    int i = 0;
+    string Type = "";
+    List<BreakDownRow> stockbreakdown;
+    @model PortfolioResponseModel;
+    List<Portfolio> dict = Model.AllLists["Consolidated"];
+
+    double consolidatedTotalCost = 0;
+    double consolidatedCurrentValue = 0;
+    double consolidateddividend = 0;
+    double consolidatedChange = 0;
+    foreach(var items in dict)
+    {
+        consolidatedTotalCost = consolidatedTotalCost + items.TotalCost;
+        consolidatedCurrentValue = consolidatedCurrentValue + items.CurrentValue;
+        consolidateddividend = consolidateddividend + items.Dividend;
+        consolidatedChange = consolidatedChange + items.Change;
+    }
+
+    double consolidatedPnL = consolidatedCurrentValue - consolidatedTotalCost + consolidateddividend;
+
+    Model.MarketCapHistory.Add(new MarketCapHistory()
+            {
+                Month = DateTime.Now,
+                Invested = new MarketCapHistoryRow() { StockMarket = System.Math.Round(consolidatedTotalCost,2) },
+                Current = new MarketCapHistoryRow() { StockMarket = System.Math.Round(consolidatedCurrentValue,2) },
+                StockMarketPercent =System.Math.Round(((consolidatedCurrentValue - consolidatedTotalCost) * 100 / consolidatedTotalCost), 2)
+            });
+
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+<style>
+     body {
+        background-color: #121212;
+        color: #ffffff;
+    }
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script> 
+
+<div class="text-center row" style="width: 99%;display: block; margin: 9px;">
+    <div>
+        
+        <!--Consolidated PF-->
+        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse1">
+            <div class="row font-weight-bold text-muted">
+                <div class="col-sm-2 small">Portfolio</div>
+                <div class="col-sm-2 small">Total investment</div>
+                <div class="col-sm-2 small">Current Value</div>
+                <div class="col-sm-2 small">Total Dividend</div>
+                <div class="col-sm-2 small">Total PnL</div>
+                <div class="col-sm-2 small">Daily Chg.</div>
+                <!--<div class="col-sm-2 small">Investment Summary</div>-->
+            </div>
+            <div class="row font-weight-bolder text-white">
+                <div class="col-sm-2 " style="font-weight: 800;">Consolidated(@(Model.AllLists["Consolidated"].Count))</div>
+                <div class="col-sm-2 " style="font-weight: 800;">@(System.Math.Round(@consolidatedTotalCost, 2))</div>
+                <div class="col-sm-2 " style="font-weight: 800;">@(System.Math.Round(@consolidatedCurrentValue, 2))</div>
+                <div class="col-sm-2 " style="font-weight: 800;">@(System.Math.Round(@consolidateddividend, 2))</div>
+                @if (consolidatedPnL > 0)
+                {
+                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@((System.Math.Round(consolidatedPnL, 2)))(@((System.Math.Round((consolidatedPnL * 100 / consolidatedTotalCost), 2)))%)</div>
+                }
+                else
+                {
+                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@((System.Math.Round(consolidatedPnL, 2)))(@((System.Math.Round((consolidatedPnL * 100 / consolidatedTotalCost), 2)))%)</div>
+                }
+                @if (consolidatedChange > 0)
+                {
+                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@((System.Math.Round(consolidatedChange, 2)))(@((System.Math.Round((100*consolidatedChange/(consolidatedCurrentValue-consolidatedChange)), 2)))%)</div>
+                }
+                else
+                {
+                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@((System.Math.Round(consolidatedChange, 2)))(@((System.Math.Round((100*consolidatedChange/(consolidatedCurrentValue-consolidatedChange)), 2)))%)</div>
+                }
+                <!--<div class="col-sm-2 " style="font-weight: 800;">
+                    @{
+                        var consolidatedcurrentMonth = DateTime.Now.Month;
+                        var consolidatedcurrentYear = DateTime.Now.Year;
+                        var consolidatedthisMonthTransactions = Model.tradeList.Where(x => x.Date.Month == consolidatedcurrentMonth && x.Date.Year == consolidatedcurrentYear).ToList();
+                        var consolidatedthisMonthTotalCost = consolidatedthisMonthTransactions.Any() 
+                            ? System.Math.Round(consolidatedthisMonthTransactions.Sum(x => x.TotalCost), 2) 
+                            : 0;
+                        var consolidatedlast3MonthTransactions = Model.tradeList.Where(x => x.Date >= DateTime.Now.AddMonths(-3)).ToList();
+                        var consolidatedlast3MonthTotalCost = consolidatedlast3MonthTransactions.Any()
+                            ? System.Math.Round(consolidatedlast3MonthTransactions.Sum(x => x.TotalCost), 2)
+                            : 0;
+                        var consolidatedthisYearTransactions = Model.tradeList.Where(x => x.Date.Year == consolidatedcurrentYear).ToList();
+                        var consolidatedthisYearTotalCost = consolidatedthisYearTransactions.Any()  
+                            ? System.Math.Round(consolidatedthisYearTransactions.Sum(x => x.TotalCost), 2) 
+                            : 0;
+                    
+                        if(consolidatedthisMonthTotalCost == 0 && consolidatedlast3MonthTotalCost == 0 && consolidatedthisYearTotalCost == 0)
+                        {
+                            <span class="label label-default">
+                                No Investment
+                            </span>
+                        }
+                        else
+                        {
+                            <table>
+                                <tr>
+                                    <td>@DateTime.Now.ToString("MMMM")</td><td>@consolidatedthisMonthTotalCost</td></tr>
+                                    <tr><td>90 Days</td><td>@consolidatedlast3MonthTotalCost</td></tr>
+                                <tr><td>@consolidatedcurrentYear</td><td>@consolidatedthisYearTotalCost</td></tr>
+                                
+                            </table>
+                    
+                        }
+                    }
+                </div>-->
+            </div>
+        </div>
+       
+        <div id="collapse1" class="panel-collapse collapse in">
+           
+            <table id="tg-GjUK1" class="tg sortable" style="width:100%">
+                <tr>
+                    <th class="tg-amwm">Name</th>
+                    <th class="tg-amwm">Quantity</th>
+                    <th class="tg-amwm">Buy Price</th>
+                    <th class="tg-amwm">Current Price</th>
+                    <th class="tg-amwm">Dividend</th>
+                    <th class="tg-amwm">Total Cost</th>
+                    <th class="tg-amwm">Current Value</th>
+                    <th class="tg-amwm">Profit/Loss</th>
+                    <th class="tg-amwm">%Profit/Loss</th>
+                    <th class="tg-amwm">Chg</th>
+                    <th class="tg-amwm">%Chg</th>
+                    <th class="tg-amwm">Realised PnL</th>
+                    <th class="tg-amwm">Investment Summary</th>
+                </tr>
+                
+                    @foreach (var item in dict)
+                    {
+                        <tr>
+                            <td data-title="Name" class="NameAlign tg-57iy">
+    <a href="stock/@item.Symbol">@item.Name (@item.Symbol)</a>
+
+    @{
+        var val = Model.stockTransactions[@item.Symbol];
+        var lastBuy = val.OrderByDescending(x => x.Date).FirstOrDefault();
+        var lastBuyDate = lastBuy?.Date.ToString("dd MMMM yyyy");
+        var daysSinceLastBuy = lastBuy != null ? (DateTime.Now - lastBuy.Date).Days : (int?)null;
+        string ageClass = "label-default";
+        string ageText = "";
+
+        if (daysSinceLastBuy.HasValue)
+        {
+            if (daysSinceLastBuy < 15)
+            {
+                ageClass = "label-success";
+                ageText = $"Recent";
+            }
+            else if (daysSinceLastBuy < 30)
+            {
+                ageClass = "label-success";
+                ageText = "This Month";
+            }
+            else if (daysSinceLastBuy < 90)
+            {
+                ageClass = "label-warning";
+                ageText = "Last 3 Months";
+            }
+            else if (daysSinceLastBuy < 365)
+            {
+                ageClass = "label-danger";
+                ageText = "This Year";
+            }
+            else
+            {
+                ageClass = "label-danger";
+                ageText = "Over a Year";
+            }
+        }
+    }
+
+    <span class="label label-success" style="margin-right:8px;">
+        Last Buy @lastBuyDate
+    </span>
+    @if (daysSinceLastBuy.HasValue)
+    {
+        <span class="label @ageClass" style="
+            @(
+                daysSinceLastBuy < 15 ? "background-color:#5b9a5d;color:#000;" :
+                daysSinceLastBuy < 30 ? "background-color:#a3d9a5;color:#000;" :
+                daysSinceLastBuy < 90 ? "background-color:#ffe066;color:#000;" :
+                daysSinceLastBuy < 365 ? "background-color:#ffb3b3;color:#000;" :
+                 "background-color:#e25f5b;color:#000;"
+            )
+        ">
+            @daysSinceLastBuy days (@ageText)
+        </span>
+    }
+</td>
+                            <td data-title="Quantity" class="tg-57iy"><a href="#" title="Buy" data-toggle="modal" data-target="#@(item.Symbol.Replace("NSE:",""))">@(System.Math.Round(@item.Quantity, 4))</a>
+                                                            <!--Buy Modal-->
+                            <div id="@(item.Symbol.Replace("NSE:",""))" class="modal fade" role="dialog">
+                                    <!-- Modal -->
+
+                                    <div class="modal-dialog modal-lg">
+
+                                        <!-- Modal content-->
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title">@item.Name (@item.Symbol)</h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="modal-body">
+                                        <div class="p-3 mb-2 bg-dark">
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col-sm-12 bold">Stock Breakdown</div>
+                                            </div>
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col small">Account</div>
+                                                <div class="col small">Portfolio</div>
+                                                <div class="col small">Quantity</div>
+                                                <div class="col small">Buy Price</div>
+                                                <div class="col small">Dividend</div>
+                                                <div class="col small">Total Cost</div>
+                                                <div class="col small">Current Value</div>
+                                                <div class="col small">Profit/Loss</div>
+                                                <div class="col small">%Profit/Loss</div>
+                                            </div>
+                                            @foreach(var portfolio in Model.AllLists)
+                                            {
+                                                if(portfolio.Key =="Consolidated")
+                                                    continue;
+
+                                                if (portfolio.Value.Any(x => x.Symbol == item.Symbol) == false)
+                                                    continue;
+
+                                                @foreach (var stock in portfolio.Value.Where(x => x.Symbol == item.Symbol).ToList())
+                                                {
+
+                                                    <div class="row font-weight-bolder text-white">
+                                                        <div class="col">@stock.Account</div>
+                                                        <div class="col">@portfolio.Key</div>
+                                                        <div class="col">@(System.Math.Round(@stock.Quantity, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.BuyPrice, 2))</div>
+                                                        @if (@stock.Dividend > @stock.CurrentPrice)
+                                                        {
+                                                            <div class="col" style="background-color: #5b9a5d;">@(System.Math.Round(@stock.Dividend, 2))</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col">@(System.Math.Round(@stock.Dividend, 2))</div>
+                                                        }
+                                                        <div class="col">@(System.Math.Round(@stock.TotalCost, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.CurrentValue, 2))</div>
+                                                        @if (@stock.PnL > 0)
+                                                        {
+                                                            @if ((System.Math.Round(((@stock.PnL) / @stock.TotalCost), 2)) > 10)
+                                                            {
+                                                                <div class="col" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                                <div class="col" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@stock.PnL * 100) / @stock.TotalCost), 2))%</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                                <div class="col" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@stock.PnL * 100) / @stock.TotalCost), 2))%</div>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            @if ((System.Math.Round(((@stock.PnL) / 100), 2)) < -10)
+                                                            {
+                                                                <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                                <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@stock.PnL * 100) / @stock.TotalCost), 2))%</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col" style="color: #e25f5b">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                                <div class="col" style="color: #e25f5b">@(System.Math.Round(((@stock.PnL * 100) / @stock.TotalCost), 2))%</div>
+                                                            }
+
+                                                        }
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+    
+                            </td>
+                            <td data-title="Buy Price" class="tg-57iy">@(System.Math.Round(@item.BuyPrice, 2))</td>
+                            <td data-title="Current Price" class="tg-57iy">@(System.Math.Round(@item.CurrentPrice, 2))</td>
+                            @if(@item.Dividend > @item.CurrentPrice)
+                            {
+                                <td data-title="Dividend" class="tg-57iy" style="background-color: #5b9a5d;">@(System.Math.Round(@item.Dividend, 2))</td>
+                            }
+                            else
+                            {
+                                <td data-title="Dividend" class="tg-57iy">@(System.Math.Round(@item.Dividend, 2))</td>
+                            }
+                            <td data-title="Total Cost" class="tg-57iy">@(System.Math.Round(@item.TotalCost, 2))</td>
+                            <td data-title="Current Value" class="tg-57iy">@(System.Math.Round(@item.CurrentValue, 2))</td>
+                            @if (@item.PnL > 0)
+                            {
+                                @if ((System.Math.Round(((@item.PnL) / @item.TotalCost), 2)) > 10)
+                                {
+                                    <td data-title="Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@item.PnL, 2))</td>
+                                    <td data-title="%Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td data-title="Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@item.PnL, 2))</td>
+                                    <td data-title="%Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                }
+                            }
+                            else
+                            {
+                                @if ((System.Math.Round(((@item.PnL) / 100), 2)) < -10)
+                                {
+                                    <td data-title="Profit/Loss" class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@item.PnL, 2))</td>
+                                    <td data-title="%Profit/Loss" class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                }
+                                else
+                                {
+                                    <td data-title="Profit/Loss" class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@item.PnL, 2))</td>
+                                    <td data-title="%Profit/Loss" class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                }
+
+                            }
+                            @if (@item.Change > 0)
+                            {
+                                <td data-title="Change" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@item.Change, 2))</td>
+                            <td data-title="%Change" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(100 * item.Change / (item.CurrentValue - item.Change), 2))%</td>
+                            }
+                            else
+                            {
+                            <td data-title="Change" class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@item.Change, 2))</td>
+                            <td data-title="%Change" class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(100 * item.Change / (item.CurrentValue - item.Change), 2))%</td>
+
+                            }
+
+                            @{
+                                var realisedPnL = Model.realisedPnLStocks.Where(x => x.Symbol == item.Symbol).FirstOrDefault()?.PnLAfterCharges ?? 0;
+                            }
+                            @if (realisedPnL > 0)
+                            {
+                                <td data-title="realisedPnL" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(realisedPnL,2))</td>
+                            }
+                            else
+                            {
+                                <td data-title="realisedPnL" class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(realisedPnL,2))</td>
+                            }
+
+                            <td data-title="Investment Summary" class="NameAlign tg-57iy">
+
+                            @{
+                                var currentMonth = DateTime.Now.Month;
+                                var currentYear = DateTime.Now.Year;
+                                var thisMonthTransactions = val.Where(x => x.Date.Month == currentMonth && x.Date.Year == currentYear).ToList();
+                                var thisMonthTotalCost = thisMonthTransactions.Any() 
+                                    ? System.Math.Round(thisMonthTransactions.Sum(x => x.TotalCost), 2) 
+                                    : 0;
+                                var last3MonthTransactions = val.Where(x => x.Date >= DateTime.Now.AddMonths(-3)).ToList();
+                                var last3MonthTotalCost = last3MonthTransactions.Any()
+                                    ? System.Math.Round(last3MonthTransactions.Sum(x => x.TotalCost), 2)
+                                    : 0;
+                                var thisYearTransactions = val.Where(x => x.Date.Year == currentYear).ToList();
+                                var thisYearTotalCost = thisYearTransactions.Any()  
+                                    ? System.Math.Round(thisYearTransactions.Sum(x => x.TotalCost), 2) 
+                                    : 0;
+                            
+                                if(thisMonthTotalCost == 0 && last3MonthTotalCost == 0 && thisYearTotalCost == 0)
+                                {
+                                    <span class="label label-default">
+                                        No Investment
+                                    </span>
+                                }
+                                else
+                                {
+                            <table>
+                                <tr>
+                                    <td>@DateTime.Now.ToString("MMMM")</td><td>@thisMonthTotalCost</td></tr>
+                                    <tr><td>90 Days</td><td>@last3MonthTotalCost</td></tr>
+                                <tr><td>@currentYear</td><td>@thisYearTotalCost</td></tr>
+                                
+                            </table>
+                            <!--<span class="label">
+   In @DateTime.Now.ToString("MMMM"): @thisMonthTotalCost
+</span><br/>
+<span class="label">
+    Last 90 Days: @last3MonthTotalCost
+</span><br/>
+<span class="label">
+    In @currentYear: @thisYearTotalCost
+</span>-->
+}
+}
+                        </td>
+                        </tr>
+                    }
+                </table>
+        </div>
+
+        @foreach (var portfolio in Model.AllLists)
+        {
+            i++;
+            if(portfolio.Key =="Consolidated")
+                continue;
+
+            Type = portfolio.Key;
+            double TotalCost = 0;
+            double CurrentValue = 0;
+            double dividend = 0;
+            double Change = 0;
+            foreach (var item in portfolio.Value)
+            {
+                TotalCost = TotalCost + item.TotalCost;
+                CurrentValue = CurrentValue + item.CurrentValue;
+                dividend = dividend + item.Dividend;
+                Change = Change + item.Change;
+            }
+            double PnL = CurrentValue - TotalCost + dividend;
+            List<string> XLabels=new List<string>();
+            List<string> YValues=new List<string>();
+
+            string collapseID = "collapse" + i;
+            string chartID = "chart" + i;
+            <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                <div class="row font-weight-bold text-muted">
+                    <div class="col-sm-2 small">Portfolio</div>
+                    <div class="col-sm-2 small">Total investment</div>
+                    <div class="col-sm-2 small">Current Value</div>
+                    <div class="col-sm-2 small">Total Dividend</div>
+                    <div class="col-sm-2 small">Total PnL</div>
+                    <div class="col-sm-2 small">Daily Chg.</div>
+                </div>
+                <div class="row font-weight-bolder text-white">
+                    <div class="col-sm-2 " style="font-weight: 800;">@Type (@portfolio.Value.Count)</div>
+                    <div class="col-sm-2 " style="font-weight: 800;">@(System.Math.Round(@TotalCost, 2))</div>
+                    <div class="col-sm-2 " style="font-weight: 800;">@(System.Math.Round(CurrentValue, 2))</div>
+                    <div class="col-sm-2 " style="font-weight: 800;">@(System.Math.Round(dividend, 2))</div>
+                    @if (PnL > 0)
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@((System.Math.Round(PnL, 2)))(@((System.Math.Round((PnL * 100 / TotalCost), 2)))%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@((System.Math.Round(PnL, 2)))(@((System.Math.Round((PnL * 100 / TotalCost), 2)))%)</div>
+                    }
+                    @if (Change > 0)
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@((System.Math.Round(Change, 2)))(@((System.Math.Round((100 * Change / (CurrentValue - Change)), 2)))%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@((System.Math.Round(Change, 2)))(@((System.Math.Round((100 * Change / (CurrentValue - Change)), 2)))%)</div>
+                    }
+                </div>
+            </div>
+
+            <div id="@(collapseID)" class="panel-collapse collapse">
+                <div class="box-body">  
+                    <div class="chart-container">  
+                        <canvas id="@(chartID)" style="width:50%; height:500px"></canvas>  
+                    </div> 
+                    
+                </div>
+                <table id="tg-GjUK1" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Account</th>
+                        <th class="tg-amwm">Name</th>
+                        <th class="tg-amwm">Quantity</th>
+                        <th class="tg-amwm">Buy Price</th>
+                        <th class="tg-amwm">Current Price</th>
+                        <th class="tg-amwm">Dividend</th>
+                        <th class="tg-amwm">Total Cost</th>
+                        <th class="tg-amwm">Current Value</th>
+                        <th class="tg-amwm">Profit/Loss</th>
+                        <th class="tg-amwm">%Profit/Loss</th>
+                        <th class="tg-amwm">%Weightage</th>
+                        <th class="tg-amwm">Investment Summary</th>
+                    </tr>
+
+                        @foreach (var item in portfolio.Value)
+                        {
+                            XLabels.Add((item.Account.Replace(" ","")+item.Symbol.Replace("NSE:","")+Type.Replace(" ","")));  
+                            YValues.Add(System.Math.Round(item.TotalCost, 2).ToString());  
+                                <tr data-toggle="modal" data-target="#@(item.Account.Replace(" ","")+item.Symbol.Replace("NSE:","")+Type.Replace(" ",""))">
+                                <td data-title="Account" class="tg-57iy">@item.Account</td>
+                                <td data-title="Name" class="tg-57iy"><div class="hovertooltip">@item.Name.Replace("NSE:","")
+                                    
+
+                                    @{
+        var val = Model.stockTransactions[@item.Symbol];
+        var lastBuy = val.OrderByDescending(x => x.Date).Where(x=>x.Portfolio == Type && x.Account == item.Account).FirstOrDefault();
+        var lastBuyDate = lastBuy?.Date.ToString("dd MMMM yyyy");
+        var daysSinceLastBuy = lastBuy != null ? (DateTime.Now - lastBuy.Date).Days : (int?)null;
+        string ageClass = "label-default";
+        string ageText = "";
+
+        if (daysSinceLastBuy.HasValue)
+        {
+            if (daysSinceLastBuy < 15)
+            {
+                ageClass = "label-success";
+                ageText = $"Recent";
+            }
+            else if (daysSinceLastBuy < 30)
+            {
+                ageClass = "label-success";
+                ageText = "This Month";
+            }
+            else if (daysSinceLastBuy < 90)
+            {
+                ageClass = "label-warning";
+                ageText = "Last 3 Months";
+            }
+            else if (daysSinceLastBuy < 365)
+            {
+                ageClass = "label-danger";
+                ageText = "This Year";
+            }
+            else
+            {
+                ageClass = "label-danger";
+                ageText = "Over a Year";
+            }
+        }
+    }
+
+    <span class="label label-success" style="margin-right:8px;">
+        Last Buy @lastBuyDate
+    </span> 
+    @if (daysSinceLastBuy.HasValue)
+    {
+        <span class="label @ageClass" style="
+            @(
+                daysSinceLastBuy < 15 ? "background-color:#5b9a5d;color:#000;" :
+                daysSinceLastBuy < 30 ? "background-color:#a3d9a5;color:#000;" :
+                daysSinceLastBuy < 90 ? "background-color:#ffe066;color:#000;" :
+                daysSinceLastBuy < 365 ? "background-color:#ffb3b3;color:#000;" :
+                 "background-color:#e25f5b;color:#000;"
+            )
+        ">
+            @daysSinceLastBuy days (@ageText)
+        </span>
+    }
+                                </div>
+                            </td>
+                                <td data-title="Quantity" class="tg-57iy">@(System.Math.Round(@item.Quantity, 4))</td>
+                                <td data-title="Buy Price" class="tg-57iy">@(System.Math.Round(@item.BuyPrice, 2))</td>
+                                <td data-title="Current Price" class="tg-57iy">@(System.Math.Round(@item.CurrentPrice, 2))</td>
+                                @if (@item.Dividend > @item.CurrentPrice)
+                                {
+                                    <td data-title="Dividend" class="tg-57iy" style="background-color: #5b9a5d;">@(System.Math.Round(@item.Dividend, 2))</td>
+                                }
+                                else
+                                {
+                                    <td data-title="Dividend" class="tg-57iy">@(System.Math.Round(@item.Dividend, 2))</td>
+                                }
+                                <td data-title="Invested" class="tg-57iy">@(System.Math.Round(@item.TotalCost, 2))</td>
+                                <td data-title="Current Value" class="tg-57iy">@(System.Math.Round(@item.CurrentValue, 2))</td>
+                                @if (@item.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((@item.PnL) / @item.TotalCost), 2)) > 10)
+                                    {
+                                        <td data-title="Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@item.PnL, 2))</td>
+                                        <td data-title="Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td data-title="Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@item.PnL, 2))</td>
+                                        <td data-title="Profit/Loss" class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@item.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td data-title="%Profit/Loss" class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@item.PnL, 2))</td>
+                                        <td data-title="%Profit/Loss" class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td data-title="%Profit/Loss" class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@item.PnL, 2))</td>
+                                        <td data-title="%Profit/Loss" class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@item.PnL * 100) / @item.TotalCost), 2))%</td>
+                                    }
+
+                                }
+                            <td data-title="%Weightage" class="tg-57iy">@(System.Math.Round(((@item.TotalCost * 100) / @TotalCost), 2))%</td>
+                            <td data-title="Investment Summary" class="NameAlign tg-57iy">
+
+                            @{
+                                var currentMonth = DateTime.Now.Month;
+                                var currentYear = DateTime.Now.Year;
+                                var thisMonthTransactions = val.Where(x => x.Date.Month == currentMonth && x.Date.Year == currentYear && x.Portfolio == Type && x.Account == item.Account).ToList();
+                                var thisMonthTotalCost = thisMonthTransactions.Any() 
+                                    ? System.Math.Round(thisMonthTransactions.Sum(x => x.TotalCost), 2) 
+                                    : 0;
+                                var last3MonthTransactions = val.Where(x => x.Date >= DateTime.Now.AddMonths(-3) && x.Portfolio == Type && x.Account == item.Account).ToList();
+                                var last3MonthTotalCost = last3MonthTransactions.Any()
+                                    ? System.Math.Round(last3MonthTransactions.Sum(x => x.TotalCost), 2)
+                                    : 0;
+                                var thisYearTransactions = val.Where(x => x.Date.Year == currentYear && x.Portfolio == Type && x.Account == item.Account).ToList();
+                                var thisYearTotalCost = thisYearTransactions.Any()  
+                                    ? System.Math.Round(thisYearTransactions.Sum(x => x.TotalCost), 2) 
+                                    : 0;
+                             if(thisMonthTotalCost == 0 && last3MonthTotalCost == 0 && thisYearTotalCost == 0)
+                                {
+                                    <span class="label label-default">
+                                        No Investment
+                                    </span>
+                                }
+                                else
+                                {
+                            <table>
+                                <tr>
+                                    <td>@DateTime.Now.ToString("MMMM")</td><td>@thisMonthTotalCost</td></tr>
+                                    <tr><td>90 Days</td><td>@last3MonthTotalCost</td></tr>
+                                <tr><td>@currentYear</td><td>@thisYearTotalCost</td></tr>
+                                
+                            </table>
+                            <!--<span class="label">
+   In @DateTime.Now.ToString("MMMM"): @thisMonthTotalCost
+</span><br/>
+<span class="label">
+    Last 90 Days: @last3MonthTotalCost
+</span><br/>
+<span class="label">
+    In @currentYear: @thisYearTotalCost
+</span>-->
+}
+}
+                        </td>
+                            </tr>
+                        <div id="@(item.Account.Replace(" ","")+item.Symbol.Replace("NSE:","")+Type.Replace(" ",""))" class="modal fade" role="dialog">
+                            <!-- Modal -->
+
+                            <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@item.Name (@item.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                        <div class="p-3 mb-2 bg-dark">
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col-sm-12 bold">BreakDown</div>
+                                            </div>
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col small">Quantity</div>
+                                                <div class="col small">Date</div>
+                                                <div class="col small">Buy Price</div>
+                                                <div class="col small">Dividend</div>
+                                                <div class="col small">Total Cost</div>
+                                                <div class="col small">PnL</div>
+                                                <div class="col small">%PnL</div>
+                                                <div class="col small">CAGR</div>
+                                                <div class="col small">Ageing</div>
+                                                <div class="col small">Tags</div>
+                                            </div>
+                                            @foreach (var transaction in Model.stockTransactions[item.Symbol])
+                                            {
+                                                @if (transaction.Account == item.Account && transaction.Portfolio == Type)
+                                                {
+                                                    <div class="row font-weight-bolder text-white">
+                                                        <div class="col">@(System.Math.Round(@transaction.Quantity, 4))</div>
+                                                        <div class="col">@(transaction.Date.ToShortDateString())</div>
+                                                        <div class="col">@(System.Math.Round(@transaction.BuyPrice, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@transaction.Dividend, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@transaction.TotalCost, 2))</div>
+                                                        @if ((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend) > 0)
+                                                        {
+                                                            @if (((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend) / @transaction.TotalCost) > 10)
+                                                            {
+                                                                <div class="col" style="font-weight: bolder; color: #5b9a5d;"> @(System.Math.Round((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend), 2))</div>
+                                                                <div class="col" style="font-weight: bolder; color: #5b9a5d;"> @(System.Math.Round((((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend) * 100) / transaction.TotalCost), 2))</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col" style="color: #5b9a5d;">@(System.Math.Round((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend), 2))</div>
+                                                                <div class="col" style="color: #5b9a5d;">@(System.Math.Round((((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend) * 100) / transaction.TotalCost), 2))</div>
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            @if (((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend) / @transaction.TotalCost) < -10)
+                                                            {
+                                                                <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend), 2))</div>
+                                                                <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend) * 100) / transaction.TotalCost), 2))</div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col" style="color: #e25f5b">@(System.Math.Round((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend), 2)) </div>
+                                                                <div class="col" style="color: #e25f5b">@(System.Math.Round((((transaction.CurrentValue - transaction.TotalCost + transaction.Dividend) * 100) / transaction.TotalCost), 2))</div>
+                                                            }
+
+                                                        }
+                                                        @if((DateTime.Now-transaction.Date).Days /365 >= 1)
+                                                        {
+                                                            var yearsHeld = (DateTime.Now - transaction.Date).Days / 365.0;
+                                                            var cagr = ((transaction.CurrentValue + transaction.Dividend) / transaction.TotalCost);
+                                                            cagr = System.Math.Pow(cagr, (1 / yearsHeld)) - 1;
+                                                            <div class="col">@(System.Math.Round(cagr * 100, 2))%</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col">N/A</div>
+                                                        }
+                                                        <div class="col">@(transaction.Ageing)</div>
+                                                        <div class="col">@(transaction.Tag)</div>
+                                                    </div>
+                                                }
+                                            }
+                                        </div>
+                                        </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                    </div>
+
+                                </div>
+                           
+                            
+                        </div>
+                        }
+
+                        
+                </table>
+                <script type="text/javascript">  
+                    $(function () {  
+                        var chartName = "@(chartID)";  
+                        var ctx = document.getElementById(chartName).getContext('2d');  
+                        var data = {  
+                        labels: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(XLabels)),  
+                        datasets: [{  
+                            label: "Drinks Chart",  
+                            backgroundColor: [  
+                                'rgba(255, 99, 132, 0.2)',  
+                                'rgba(54, 162, 235, 0.2)',  
+                                'rgba(255, 206, 86, 0.2)',  
+                                'rgba(75, 192, 192, 0.2)',  
+                                'rgba(153, 102, 255, 0.2)',  
+                                'rgba(255, 159, 64, 0.2)',  
+                                'rgba(255, 0, 0)',  
+                                'rgba(0, 255, 0)',  
+                                'rgba(0, 0, 255)',  
+                                'rgba(192, 192, 192)',  
+                                'rgba(255, 255, 0)',  
+                                'rgba(255, 0, 255)'  
+                            ],  
+                            borderColor: [  
+                                'rgba(255,99,132,1)',  
+                                'rgba(54, 162, 235, 1)',  
+                                'rgba(255, 206, 86, 1)',  
+                                'rgba(75, 192, 192, 1)',  
+                                'rgba(153, 102, 255, 1)',  
+                                'rgba(255, 159, 64, 1)',  
+                                'rgba(255, 0, 0)',  
+                                'rgba(0, 255, 0)',  
+                                'rgba(0, 0, 255)',  
+                                'rgba(192, 192, 192)',  
+                                'rgba(255, 255, 0)',  
+                                'rgba(255, 0, 255)'  
+                            ],  
+                            borderWidth: 1,  
+                            data: @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(YValues))  
+                        }]  
+                    };  
+  
+                    var options = {  
+                        maintainAspectRatio: false,  
+                    };  
+  
+                    var myChart = new  Chart(ctx, {  
+                        options: options,  
+                        data: data,  
+                        type:'pie'  
+  
+                    });  
+                });  
+                
+        
+    </script>
+            </div>
+        }
+    </div>
+</div>

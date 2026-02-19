@@ -1,0 +1,206 @@
+﻿.NameAlign {
+    text-align: left;
+    padding-left: 15px;
+}
+.tg {
+    border-collapse: collapse;
+    border-color: #232325;
+    border-spacing: 0;
+}
+
+.error {
+    color: #e25f5b;
+}
+
+.positive {
+    color: #5b9a5d;
+}
+
+.tg td {
+    border-color: #232325;
+    border-style: solid;
+    border-width: 1px;
+    font-family: "Overpass", "Open Sans", Helvetica, sans-serif;
+    font-size: 14px;
+    overflow: hidden;
+    padding: 5px 5px;
+    word-break: normal;
+    color: #bbb;
+}
+
+.tg th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #111;
+    border-color: #232325;
+    border-style: solid;
+    border-width: 1px;
+    color: #666;
+    font-family: "Overpass", "Open Sans", Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: normal;
+    overflow: hidden;
+    padding: 10px 15px;
+    word-break: normal;
+}
+
+
+.tg .tg-amwm {
+    font-weight: bold;
+    text-align: center;
+    vertical-align: top
+}
+
+.tg .tg-57iy {
+    background-color: #111;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.tg-sort-header::-moz-selection {
+    background: 0 0
+}
+
+.tg-sort-header::selection {
+    background: 0 0
+}
+
+.tg-sort-header {
+    cursor: pointer
+}
+
+    .tg-sort-header:after {
+        content: '';
+        float: right;
+        margin-top: 7px;
+        border-width: 0 5px 5px;
+        border-style: solid;
+        border-color: #404040 transparent;
+        visibility: hidden
+    }
+
+    .tg-sort-header:hover:after {
+        visibility: visible
+    }
+
+.tg-sort-asc:after, .tg-sort-asc:hover:after, .tg-sort-desc:after {
+    visibility: visible;
+    opacity: .4
+}
+
+.tg-sort-desc:after {
+    border-bottom: none;
+    border-width: 5px 5px 0
+}
+
+
+.SearchSpanInd {
+    display: inline-flex;
+    float: right;
+    width: 100%;
+}
+
+/* Tooltip container */
+.hovertooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+}
+
+/* Tooltip text */
+.hovertooltip .hovertooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    /* Fade in tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+ /* Tooltip arrow */
+.hovertooltip .hovertooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.hovertooltip:hover .hovertooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+@media only screen and (max-width: 800px) {
+    .NameAlign {
+        text-align: right;
+    }
+    /* Force table to not be like tables anymore */
+    #tg-GjUK1 table,
+    #tg-GjUK1 thead,
+    #tg-GjUK1 tbody,
+    #tg-GjUK1 th,
+    #tg-GjUK1 td,
+    #tg-GjUK1 tr {
+        display: block;
+    }
+
+        /* Hide table headers (but not display: none;, for accessibility) */
+        #tg-GjUK1 thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+    #tg-GjUK1 tr {
+        border: 1px solid #ccc;
+    }
+
+    #tg-GjUK1 td {
+        /* Behave  like a "row" */
+
+        position: relative;
+        padding-left: 50%;
+        white-space: normal;
+        text-align: left;
+    }
+
+        #tg-GjUK1 td:before {
+            /* Now like a table header */
+            position: absolute;
+            /* Top/left values mimic padding */
+            top: 6px;
+            left: 6px;
+            width: 45%;
+            padding-right: 10px;
+            white-space: nowrap;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        /*
+	Label the data
+	*/
+        #tg-GjUK1 td:before {
+            content: attr(data-title);
+        }
+
+    #tg-GjUK1 .tg-57iy {
+        text-align: right;
+    }
+}

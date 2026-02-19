@@ -1,0 +1,2342 @@
+﻿@{
+    ViewData["Title"] = "Realised Profit & Loss";
+
+    @model RealisedPnLResponseModel;
+
+    int i = 0;
+    double TotalCost = 0;
+    double SellValue = 0;
+    double TotalPnL = 0;
+    double TotalCharges = 0;
+
+    double DeliveryTotalCost = 0;
+    double DeliverySellValue = 0;
+    double DeliveryTotalPnL = 0;
+    double DeliveryTotalCharges = 0;
+
+    double IntradayTotalCost = 0;
+    double IntradaySellValue = 0;
+    double IntradayTotalPnL = 0;
+    double IntradayTotalCharges = 0;
+
+    var yearlyrealisedPnL = new List<RealisedPnLRow>();
+    var monthlyrealisedPnL = new List<RealisedPnLRow>();
+
+    var DeliveryyearlyrealisedPnL = new List<RealisedPnLRow>();
+    var DeliverymonthlyrealisedPnL = new List<RealisedPnLRow>();
+
+    var IntradayyearlyrealisedPnL = new List<RealisedPnLRow>();
+    var IntradaymonthlyrealisedPnL = new List<RealisedPnLRow>();
+
+    foreach (var items in Model.realisedPnLs)
+    {
+        TotalCost = TotalCost + items.TotalCost;
+        SellValue = SellValue + items.SellValue;
+        TotalPnL = TotalPnL + items.PnL;
+        TotalCharges = TotalCharges + items.TotalCharges;
+
+        if(items.Type == "Delivery")
+        {
+            DeliveryTotalCost = DeliveryTotalCost + items.TotalCost;
+            DeliverySellValue = DeliverySellValue + items.SellValue;
+            DeliveryTotalPnL = DeliveryTotalPnL + items.PnL;
+            DeliveryTotalCharges = DeliveryTotalCharges + items.TotalCharges;
+
+            if(DeliveryyearlyrealisedPnL.Any(x=>x.SellDate.Year == items.SellDate.Year))
+            {
+                var pf = DeliveryyearlyrealisedPnL.First(x => x.SellDate.Year ==  items.SellDate.Year);
+
+                        
+                pf.PnL = pf.PnL+items.PnL;
+                pf.Dividend = pf.Dividend+items.Dividend;
+                pf.TotalCost = pf.TotalCost+items.TotalCost;
+                pf.SellValue = pf.SellValue+items.SellValue;
+                pf.TotalCharges = pf.TotalCharges + items.TotalCharges;
+                pf.Brokerage = pf.Brokerage + items.Brokerage;
+                pf.STT = pf.STT + items.STT;
+                pf.TranCharges = pf.TranCharges + items.TranCharges;
+                pf.GST = pf.GST + items.GST;
+                pf.SEBICharges = pf.SEBICharges + items.SEBICharges;
+                pf.StampDuty = pf.StampDuty + items.StampDuty;
+                pf.OtherCharges = pf.OtherCharges + items.OtherCharges;
+            }
+            else
+            {
+                DeliveryyearlyrealisedPnL.Add(new RealisedPnLRow()
+                        {
+                            SellDate = items.SellDate,
+                            Dividend = items.Dividend,
+                            TotalCost = items.TotalCost,
+                            SellValue = items.SellValue,
+                            PnL = items.PnL,
+                            PnLAfterCharges = items.PnLAfterCharges,
+                            TotalCharges = items.TotalCharges,
+                            Brokerage = items.Brokerage,
+                            STT = items.STT,
+                            TranCharges = items.TranCharges,
+                            GST = items.GST,
+                            SEBICharges = items.SEBICharges,
+                            StampDuty = items.StampDuty,
+                            OtherCharges = items.OtherCharges
+                        });
+            }
+            if(DeliverymonthlyrealisedPnL.Any(x=>x.SellDate.Year == items.SellDate.Year && x.SellDate.Month == items.SellDate.Month))
+            {
+                var pf = DeliverymonthlyrealisedPnL.First(x => x.SellDate.Year ==  items.SellDate.Year && x.SellDate.Month == items.SellDate.Month);
+
+                        
+                pf.PnL = pf.PnL+items.PnL;
+                pf.Dividend = pf.Dividend+items.Dividend;
+                pf.TotalCost = pf.TotalCost+items.TotalCost;
+                pf.SellValue = pf.SellValue+items.SellValue;
+                pf.TotalCharges = pf.TotalCharges + items.TotalCharges;
+                pf.Brokerage = pf.Brokerage + items.Brokerage;
+                pf.STT = pf.STT + items.STT;
+                pf.TranCharges = pf.TranCharges + items.TranCharges;
+                pf.GST = pf.GST + items.GST;
+                pf.SEBICharges = pf.SEBICharges + items.SEBICharges;
+                pf.StampDuty = pf.StampDuty + items.StampDuty;
+                pf.OtherCharges = pf.OtherCharges + items.OtherCharges;
+            }
+            else
+            {
+                DeliverymonthlyrealisedPnL.Add(new RealisedPnLRow()
+                        {
+                            SellDate = items.SellDate,
+                            Dividend = items.Dividend,
+                            TotalCost = items.TotalCost,
+                            SellValue = items.SellValue,
+                            PnL = items.PnL,
+                            PnLAfterCharges = items.PnLAfterCharges,
+                            TotalCharges = items.TotalCharges,
+                            Brokerage = items.Brokerage,
+                            STT = items.STT,
+                            TranCharges = items.TranCharges,
+                            GST = items.GST,
+                            SEBICharges = items.SEBICharges,
+                            StampDuty = items.StampDuty,
+                            OtherCharges = items.OtherCharges
+                        });
+            }
+        }
+        else if(items.Type == "Intraday")
+        {
+            IntradayTotalCost = IntradayTotalCost + items.TotalCost;
+            IntradaySellValue = IntradaySellValue + items.SellValue;
+            IntradayTotalPnL = IntradayTotalPnL + items.PnL;
+            IntradayTotalCharges = IntradayTotalCharges + items.TotalCharges;
+
+            if(IntradayyearlyrealisedPnL.Any(x=>x.SellDate.Year == items.SellDate.Year))
+            {
+                var pf = IntradayyearlyrealisedPnL.First(x => x.SellDate.Year ==  items.SellDate.Year);
+
+                        
+                pf.PnL = pf.PnL+items.PnL;
+                pf.Dividend = pf.Dividend+items.Dividend;
+                pf.TotalCost = pf.TotalCost+items.TotalCost;
+                pf.SellValue = pf.SellValue+items.SellValue;
+                pf.TotalCharges = pf.TotalCharges + items.TotalCharges;
+                pf.Brokerage = pf.Brokerage + items.Brokerage;
+                pf.STT = pf.STT + items.STT;
+                pf.TranCharges = pf.TranCharges + items.TranCharges;
+                pf.GST = pf.GST + items.GST;
+                pf.SEBICharges = pf.SEBICharges + items.SEBICharges;
+                pf.StampDuty = pf.StampDuty + items.StampDuty;
+                pf.OtherCharges = pf.OtherCharges + items.OtherCharges;
+            }
+            else
+            {
+                IntradayyearlyrealisedPnL.Add(new RealisedPnLRow()
+                        {
+                            SellDate = items.SellDate,
+                            Dividend = items.Dividend,
+                            TotalCost = items.TotalCost,
+                            SellValue = items.SellValue,
+                            PnL = items.PnL,
+                            PnLAfterCharges = items.PnLAfterCharges,
+                            TotalCharges = items.TotalCharges,
+                            Brokerage = items.Brokerage,
+                            STT = items.STT,
+                            TranCharges = items.TranCharges,
+                            GST = items.GST,
+                            SEBICharges = items.SEBICharges,
+                            StampDuty = items.StampDuty,
+                            OtherCharges = items.OtherCharges
+                        });
+            }
+            if(IntradaymonthlyrealisedPnL.Any(x=>x.SellDate.Year == items.SellDate.Year && x.SellDate.Month == items.SellDate.Month))
+            {
+                var pf = IntradaymonthlyrealisedPnL.First(x => x.SellDate.Year ==  items.SellDate.Year && x.SellDate.Month == items.SellDate.Month);
+
+                        
+                pf.PnL = pf.PnL+items.PnL;
+                pf.Dividend = pf.Dividend+items.Dividend;
+                pf.TotalCost = pf.TotalCost+items.TotalCost;
+                pf.SellValue = pf.SellValue+items.SellValue;
+                pf.TotalCharges = pf.TotalCharges + items.TotalCharges;
+                pf.Brokerage = pf.Brokerage + items.Brokerage;
+                pf.STT = pf.STT + items.STT;
+                pf.TranCharges = pf.TranCharges + items.TranCharges;
+                pf.GST = pf.GST + items.GST;
+                pf.SEBICharges = pf.SEBICharges + items.SEBICharges;
+                pf.StampDuty = pf.StampDuty + items.StampDuty;
+                pf.OtherCharges = pf.OtherCharges + items.OtherCharges;
+            }
+            else
+            {
+                IntradaymonthlyrealisedPnL.Add(new RealisedPnLRow()
+                        {
+                            SellDate = items.SellDate,
+                            Dividend = items.Dividend,
+                            TotalCost = items.TotalCost,
+                            SellValue = items.SellValue,
+                            PnL = items.PnL,
+                            PnLAfterCharges = items.PnLAfterCharges,
+                            TotalCharges = items.TotalCharges,
+                            Brokerage = items.Brokerage,
+                            STT = items.STT,
+                            TranCharges = items.TranCharges,
+                            GST = items.GST,
+                            SEBICharges = items.SEBICharges,
+                            StampDuty = items.StampDuty,
+                            OtherCharges = items.OtherCharges
+                        });
+            }
+        }
+
+        if(yearlyrealisedPnL.Any(x=>x.SellDate.Year == items.SellDate.Year))
+        {
+            var pf = yearlyrealisedPnL.First(x => x.SellDate.Year ==  items.SellDate.Year);
+
+                    
+            pf.PnL = pf.PnL+items.PnL;
+            pf.Dividend = pf.Dividend+items.Dividend;
+            pf.TotalCost = pf.TotalCost+items.TotalCost;
+            pf.SellValue = pf.SellValue+items.SellValue;
+            pf.TotalCharges = pf.TotalCharges + items.TotalCharges;
+            pf.Brokerage = pf.Brokerage + items.Brokerage;
+            pf.STT = pf.STT + items.STT;
+            pf.TranCharges = pf.TranCharges + items.TranCharges;
+            pf.GST = pf.GST + items.GST;
+            pf.SEBICharges = pf.SEBICharges + items.SEBICharges;
+            pf.StampDuty = pf.StampDuty + items.StampDuty;
+            pf.OtherCharges = pf.OtherCharges + items.OtherCharges;
+        }
+        else
+        {
+            yearlyrealisedPnL.Add(new RealisedPnLRow()
+                    {
+                        SellDate = items.SellDate,
+                        Dividend = items.Dividend,
+                        TotalCost = items.TotalCost,
+                        SellValue = items.SellValue,
+                        PnL = items.PnL,
+                        PnLAfterCharges = items.PnLAfterCharges,
+                        TotalCharges = items.TotalCharges,
+                        Brokerage = items.Brokerage,
+                        STT = items.STT,
+                        TranCharges = items.TranCharges,
+                        GST = items.GST,
+                        SEBICharges = items.SEBICharges,
+                        StampDuty = items.StampDuty,
+                        OtherCharges = items.OtherCharges
+                    });
+        }
+        if(monthlyrealisedPnL.Any(x=>x.SellDate.Year == items.SellDate.Year && x.SellDate.Month == items.SellDate.Month))
+        {
+            var pf = monthlyrealisedPnL.First(x => x.SellDate.Year ==  items.SellDate.Year && x.SellDate.Month == items.SellDate.Month);
+
+                    
+            pf.PnL = pf.PnL+items.PnL;
+            pf.Dividend = pf.Dividend+items.Dividend;
+            pf.TotalCost = pf.TotalCost+items.TotalCost;
+            pf.SellValue = pf.SellValue+items.SellValue;
+            pf.TotalCharges = pf.TotalCharges + items.TotalCharges;
+            pf.Brokerage = pf.Brokerage + items.Brokerage;
+            pf.STT = pf.STT + items.STT;
+            pf.TranCharges = pf.TranCharges + items.TranCharges;
+            pf.GST = pf.GST + items.GST;
+            pf.SEBICharges = pf.SEBICharges + items.SEBICharges;
+            pf.StampDuty = pf.StampDuty + items.StampDuty;
+            pf.OtherCharges = pf.OtherCharges + items.OtherCharges;
+        }
+        else
+        {
+            monthlyrealisedPnL.Add(new RealisedPnLRow()
+                    {
+                        SellDate = items.SellDate,
+                        Dividend = items.Dividend,
+                        TotalCost = items.TotalCost,
+                        SellValue = items.SellValue,
+                        PnL = items.PnL,
+                        PnLAfterCharges = items.PnLAfterCharges,
+                        TotalCharges = items.TotalCharges,
+                        Brokerage = items.Brokerage,
+                        STT = items.STT,
+                        TranCharges = items.TranCharges,
+                        GST = items.GST,
+                        SEBICharges = items.SEBICharges,
+                        StampDuty = items.StampDuty,
+                        OtherCharges = items.OtherCharges
+                    });
+        }
+    }
+    double TotalPnLPercent = System.Math.Round((TotalPnL * 100 / TotalCost), 2);
+    double TotalPnLAfterCharges = TotalPnL - TotalCharges;
+
+    double TotalPnLAfterChargesPercent = System.Math.Round((TotalPnLAfterCharges * 100 / TotalCost), 2);
+
+    double DeliveryTotalPnLPercent = System.Math.Round((DeliveryTotalPnL * 100 / DeliveryTotalCost), 2);
+    double DeliveryTotalPnLAfterCharges = DeliveryTotalPnL - DeliveryTotalCharges;
+
+    double DeliveryTotalPnLAfterChargesPercent = System.Math.Round((DeliveryTotalPnLAfterCharges * 100 / DeliveryTotalCost), 2);
+
+    double IntradayTotalPnLPercent = System.Math.Round((IntradayTotalPnL * 100 / IntradayTotalCost), 2);
+    double IntradayTotalPnLAfterCharges = IntradayTotalPnL - IntradayTotalCharges;
+
+    double IntradayTotalPnLAfterChargesPercent = System.Math.Round((IntradayTotalPnLAfterCharges * 100 / IntradayTotalCost), 2);
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+
+<div class="text-center row" style="width: 99%;display: block; margin: 9px;">
+    <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="pill" href="#combined">Combined</a></li>
+            <li><a data-toggle="pill" href="#delivery">Delivery</a></li>
+            <li><a data-toggle="pill" href="#intraday">Intraday</a></li>
+        </ul>
+    
+    <div class="tab-content">
+        <!--Combined PnL-->
+        <div id="combined" class="tab-pane fade in active">
+            <!--Realised PnL-->
+
+            <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse1">
+                <div class="row font-weight-bold text-muted">
+                    <div class="col-sm-2 small">Total Cost</div>
+                    <div class="col-sm-2 small">Sell Value</div>
+                    <div class="col-sm-4 small">PnL</div>
+                    <div class="col-sm-2 small">PnL(After Charges)</div>
+                    <div class="col-sm-2 small">Total Charges</div>
+                </div>
+                <div class="row font-weight-bolder text-white">
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(TotalCost, 2))</div>
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(SellValue, 2))</div>
+                    @if (TotalPnL > 0)
+                    {
+                        <div class="col-sm-4" style="font-weight: 800;color: #5b9a5d;">@(TotalPnL)(@(TotalPnLPercent)%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-4" style="font-weight: 800;color: #e25f5b;">@(TotalPnL)(@(TotalPnLPercent)%)</div>
+                    }
+                    @if (TotalPnLAfterCharges > 0)
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(TotalPnLAfterCharges)(@(TotalPnLAfterChargesPercent)%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(TotalPnLAfterCharges)(@(TotalPnLAfterChargesPercent)%)</div>
+                    }
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(TotalCharges, 2))</div>
+                </div>
+            </div>
+            <ul class="nav nav-pills">
+                <li class="active"><a data-toggle="pill" href="#all">Realised PnL</a></li>
+                <li><a data-toggle="pill" href="#stocks">Realised PnL StockWise</a></li>
+                <li><a data-toggle="pill" href="#yearlypnl">Yearly PnL</a></li>
+                <li><a data-toggle="pill" href="#monthlypnl">Monthly PnL</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="all" class="tab-pane fade in active">
+                    <span class="SearchSpanInd"><input id="realisedsearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Account</th>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Sell Date</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        <tbody id="realisedbody">
+                        @foreach (var transaction in Model.realisedPnLs)
+                        {
+                            i++;
+
+                            double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                <td class="tg-57iy">@transaction.Account</td>
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+
+                                }
+                                @if (transaction.PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div id="stocks" class="tab-pane fade">
+                    <span class="SearchSpanInd"><input id="realisedstockssearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">% Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        <tbody id="realisedstocksbody">
+                        @foreach (var transaction in Model.realisedPnLStocks)
+                        {
+                            i++;
+
+                            double PnLAfterCharges = System.Math.Round((transaction.PnL - transaction.TotalCharges), 2);
+                            double PnLAfterChargesPercent = System.Math.Round((PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:",""))">
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2))</td>
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+
+                                }
+                                @if (PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:",""))" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                                <div class="row font-weight-bold text-muted">&nbsp;
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    &nbsp;
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Transaction Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Account</div>
+                                                    <div class="col small">Date</div>
+                                                    <div class="col small">Quantity</div>
+                                                    <div class="col small">Buy Price</div>
+                                                    <div class="col small">Sell Price</div>
+                                                    <div class="col small">Profit/Loss</div>
+                                                    <div class="col small">Profit/Loss After Charges</div>
+                                                    <div class="col small">Total Charges</div>
+                                                </div>
+                                                @foreach(var stock in Model.realisedPnLs.Where(x=>x.Symbol == transaction.Symbol).ToList())
+                                                {
+                                                    <div class="row font-weight-bolder text-white">
+                                                        <div class="col">@stock.Account</div>
+                                                        <div class="col">@stock.SellDate.ToShortDateString()</div>
+                                                        <div class="col">@(System.Math.Round(@stock.Quantity, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.BuyPrice, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.SellPrice, 2))</div>
+                                                        @if (stock.PnL > 0)
+                                                        {
+                                                            <div class="col" style="font-weight: bolder; color: #5b9a5d;">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                        }
+                                                        @if ((stock.PnL - stock.TotalCharges) > 0)
+                                                        {
+                                                            <div class="col" style="font-weight: bolder; color: #5b9a5d;">@(System.Math.Round((stock.PnL-stock.TotalCharges), 2))</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((stock.PnL-stock.TotalCharges), 2))</div>
+                                                        }
+                                                        <div class="col">@(System.Math.Round(@stock.TotalCharges, 2))</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                <div id="yearlypnl" class="tab-pane fade">
+                    
+                    @foreach (var yearrow in yearlyrealisedPnL)
+                    {
+                        double yearPnLPercent = System.Math.Round((yearrow.PnL * 100 / yearrow.TotalCost), 2);
+                        double yearPnLAfterCharges = System.Math.Round((yearrow.PnL - yearrow.TotalCharges), 2);
+
+                        double yearPnLAfterChargesPercent = System.Math.Round((yearPnLAfterCharges * 100 / yearrow.TotalCost), 2);
+                        string collapseID = "collapse" + yearrow.SellDate.Year;
+                        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                            <div class="row font-weight-bold text-muted">
+                                <div class="col-sm-2 small">Year</div>
+                                <div class="col-sm-2 small">Total Cost</div>
+                                <div class="col-sm-2 small">Sell Value</div>
+                                <div class="col-sm-2 small">PnL</div>
+                                <div class="col-sm-2 small">PnL(After Charges)</div>
+                                <div class="col-sm-2 small">Total Charges</div>
+                            </div>
+                            <div class="row font-weight-bolder text-white">
+                                <div class="col-sm-2" style="font-weight: 800;">@(yearrow.SellDate.Year)</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.SellValue, 2))</div>
+                                @if (yearrow.PnL > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                @if (yearPnLAfterCharges > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCharges, 2))</div>
+                            </div>
+                        </div>
+
+                <div id="@(collapseID)" class="panel-collapse collapse">
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Account</th>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Sell Date</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        @foreach (var transaction in Model.realisedPnLs)
+                        {
+                            i++;
+                                        if (transaction.SellDate.Year != yearrow.SellDate.Year)
+                                            continue;
+                                        double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                <td class="tg-57iy">@transaction.Account</td>
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+
+                                }
+                                @if (transaction.PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                    </table>
+                </div>
+            }
+                
+                </div>
+
+                <div id="monthlypnl" class="tab-pane fade">
+
+                    @foreach (var yearrow in monthlyrealisedPnL)
+                    {
+                        double yearPnLPercent = System.Math.Round((yearrow.PnL * 100 / yearrow.TotalCost), 2);
+                        double yearPnLAfterCharges = System.Math.Round((yearrow.PnL - yearrow.TotalCharges), 2);
+
+                        double yearPnLAfterChargesPercent = System.Math.Round((yearPnLAfterCharges * 100 / yearrow.TotalCost), 2);
+                        string collapseID = "collapse" + yearrow.SellDate.Year+yearrow.SellDate.Month;
+                        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                            <div class="row font-weight-bold text-muted">
+                                <div class="col-sm-2 small">Month-Year</div>
+                                <div class="col-sm-2 small">Total Cost</div>
+                                <div class="col-sm-2 small">Sell Value</div>
+                                <div class="col-sm-2 small">PnL</div>
+                                <div class="col-sm-2 small">PnL(After Charges)</div>
+                                <div class="col-sm-2 small">Total Charges</div>
+                            </div>
+                            <div class="row font-weight-bolder text-white">
+                                <div class="col-sm-2" style="font-weight: 800;">@(yearrow.SellDate.ToString("MMMM"))-@(yearrow.SellDate.Year)</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.SellValue, 2))</div>
+                                @if (yearrow.PnL > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                @if (yearPnLAfterCharges > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCharges, 2))</div>
+                            </div>
+                        </div>
+
+                        <div id="@(collapseID)" class="panel-collapse collapse">
+                            <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                                <tr>
+                                    <th class="tg-amwm">Account</th>
+                                    <th class="tg-amwm">Name</th>
+                                    <th class="tg-amwm">Sell Date</th>
+                                    <th class="tg-amwm">Quantity</th>
+                                    <th class="tg-amwm">Buy Price</th>
+                                    <th class="tg-amwm">Sell Price</th>
+                                    <th class="tg-amwm">Dividend</th>
+                                    <th class="tg-amwm">Total Cost</th>
+                                    <th class="tg-amwm">Sell Value</th>
+                                    <th class="tg-amwm">Profit/Loss</th>
+                                    <th class="tg-amwm">Profit/Loss After Charges</th>
+                                    <th class="tg-amwm">Total Charges</th>
+                                </tr>
+                                @foreach (var transaction in Model.realisedPnLs)
+                                {
+                                    i++;
+                                    if ((transaction.SellDate.Year.ToString()+transaction.SellDate.Month.ToString()) != (yearrow.SellDate.Year.ToString()+yearrow.SellDate.Month.ToString()))
+                                        continue;
+                                    double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                                    <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                        <td class="tg-57iy">@transaction.Account</td>
+                                        <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                        <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                        @if (transaction.PnL > 0)
+                                        {
+                                            @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                            {
+                                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                            {
+                                                <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+
+                                        }
+                                        @if (transaction.PnLAfterCharges > 0)
+                                        {
+                                            <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                        }
+                                        <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                                    </tr>
+                                    <div id="@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                        <!-- Modal -->
+
+                                        <div class="modal-dialog modal-lg">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="p-3 mb-2 bg-dark">
+                                                        <div class="row font-weight-bold text-muted">
+                                                            <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                        </div>
+                                                        <div class="row font-weight-bold text-muted">
+                                                            <div class="col small">Total Charges</div>
+                                                            <div class="col small">Brokerage</div>
+                                                            <div class="col small">STT</div>
+                                                            <div class="col small">Transaction Charges</div>
+                                                            <div class="col small">GST</div>
+                                                            <div class="col small">SEBI Charges</div>
+                                                            <div class="col small">Stamp Duty</div>
+                                                            <div class="col small">Other Charges</div>
+                                                        </div>
+                                                        <div class="row font-weight-bolder text-white">
+                                                            <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+                            </table>
+                        </div>
+                    }
+
+                </div>
+            
+        </div>
+        </div>
+         <!-- ################################ -->
+        <!--           DELIVERY TAB           -->
+        <!-- ################################ -->
+        <div id="delivery" class="tab-pane fade">
+
+        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse2">
+                <div class="row font-weight-bold text-muted">
+                    <div class="col-sm-2 small">Total Cost</div>
+                    <div class="col-sm-2 small">Sell Value</div>
+                    <div class="col-sm-4 small">PnL</div>
+                    <div class="col-sm-2 small">PnL(After Charges)</div>
+                    <div class="col-sm-2 small">Total Charges</div>
+                </div>
+                <div class="row font-weight-bolder text-white">
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(DeliveryTotalCost, 2))</div>
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(DeliverySellValue, 2))</div>
+                    @if (DeliveryTotalPnL > 0)
+                    {
+                        <div class="col-sm-4" style="font-weight: 800;color: #5b9a5d;">@(DeliveryTotalPnL)(@(DeliveryTotalPnLPercent)%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-4" style="font-weight: 800;color: #e25f5b;">@(DeliveryTotalPnL)(@(DeliveryTotalPnLPercent)%)</div>
+                    }
+                    @if (DeliveryTotalPnLAfterCharges > 0)
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(DeliveryTotalPnLAfterCharges)(@(DeliveryTotalPnLAfterChargesPercent)%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(DeliveryTotalPnLAfterCharges)(@(DeliveryTotalPnLAfterChargesPercent)%)</div>
+                    }
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(DeliveryTotalCharges, 2))</div>
+                </div>
+            </div>
+        <!-- Nested nav inside Delivery -->
+        <ul class="nav nav-pills" style="margin-top:15px;">
+            <li class="active"><a data-toggle="pill" href="#Deliveryall">Realised PnL</a></li>
+            <li><a data-toggle="pill" href="#Deliverystocks">Realised PnL StockWise</a></li>
+            <li><a data-toggle="pill" href="#Deliveryyearlypnl">Yearly PnL</a></li>
+            <li><a data-toggle="pill" href="#Deliverymonthlypnl">Monthly PnL</a></li>
+        </ul>
+
+        <!-- Nested delivery tab content -->
+        <div class="tab-content" style="margin-top:15px;">
+            <div id="Deliveryall" class="tab-pane fade in active">
+                <span class="SearchSpanInd"><input id="Deliveryrealisedsearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Account</th>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Sell Date</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        <tbody id="Deliveryrealisedbody">
+                        @foreach (var transaction in Model.realisedPnLs)
+                        {
+                            if(transaction.Type != "Delivery")
+                            {
+                                continue;
+                            }
+                            i++;
+
+                            double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                <td class="tg-57iy">@transaction.Account</td>
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+
+                                }
+                                @if (transaction.PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                        </tbody>
+                    </table>
+            </div>
+            <div id="Deliverystocks" class="tab-pane fade">
+                <span class="SearchSpanInd"><input id="Deliveryrealisedstockssearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">% Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        <tbody id="Deliveryrealisedstocksbody">
+                        @foreach (var transaction in Model.DeliveryrealisedPnLStocks)
+                        {
+                            i++;
+
+                            double PnLAfterCharges = System.Math.Round((transaction.PnL - transaction.TotalCharges), 2);
+                            double PnLAfterChargesPercent = System.Math.Round((PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@("Delivery-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:",""))">
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2))</td>
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+
+                                }
+                                @if (PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@("Delivery-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:",""))" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                                <div class="row font-weight-bold text-muted">&nbsp;
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    &nbsp;
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Transaction Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Account</div>
+                                                    <div class="col small">Date</div>
+                                                    <div class="col small">Quantity</div>
+                                                    <div class="col small">Buy Price</div>
+                                                    <div class="col small">Sell Price</div>
+                                                    <div class="col small">Profit/Loss</div>
+                                                    <div class="col small">Profit/Loss After Charges</div>
+                                                    <div class="col small">Total Charges</div>
+                                                </div>
+                                                @foreach(var stock in Model.realisedPnLs.Where(x=>x.Symbol == transaction.Symbol).ToList())
+                                                {
+                                                    if(stock.Type != "Delivery")
+                                                    {
+                                                        continue;
+                                                    }
+                                                    <div class="row font-weight-bolder text-white">
+                                                        <div class="col">@stock.Account</div>
+                                                        <div class="col">@stock.SellDate.ToShortDateString()</div>
+                                                        <div class="col">@(System.Math.Round(@stock.Quantity, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.BuyPrice, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.SellPrice, 2))</div>
+                                                        @if (stock.PnL > 0)
+                                                        {
+                                                            <div class="col" style="font-weight: bolder; color: #5b9a5d;">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                        }
+                                                        @if ((stock.PnL - stock.TotalCharges) > 0)
+                                                        {
+                                                            <div class="col" style="font-weight: bolder; color: #5b9a5d;">@(System.Math.Round((stock.PnL-stock.TotalCharges), 2))</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((stock.PnL-stock.TotalCharges), 2))</div>
+                                                        }
+                                                        <div class="col">@(System.Math.Round(@stock.TotalCharges, 2))</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                        </tbody>
+                    </table>
+            </div>
+            <div id="Deliveryyearlypnl" class="tab-pane fade">
+                 @foreach (var yearrow in DeliveryyearlyrealisedPnL)
+                    {
+                        double yearPnLPercent = System.Math.Round((yearrow.PnL * 100 / yearrow.TotalCost), 2);
+                        double yearPnLAfterCharges = System.Math.Round((yearrow.PnL - yearrow.TotalCharges), 2);
+
+                        double yearPnLAfterChargesPercent = System.Math.Round((yearPnLAfterCharges * 100 / yearrow.TotalCost), 2);
+                        string collapseID2 = "Deliverycollapse" + yearrow.SellDate.Year;
+                        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID2)">
+                            <div class="row font-weight-bold text-muted">
+                                <div class="col-sm-2 small">Year</div>
+                                <div class="col-sm-2 small">Total Cost</div>
+                                <div class="col-sm-2 small">Sell Value</div>
+                                <div class="col-sm-2 small">PnL</div>
+                                <div class="col-sm-2 small">PnL(After Charges)</div>
+                                <div class="col-sm-2 small">Total Charges</div>
+                            </div>
+                            <div class="row font-weight-bolder text-white">
+                                <div class="col-sm-2" style="font-weight: 800;">@(yearrow.SellDate.Year)</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.SellValue, 2))</div>
+                                @if (yearrow.PnL > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                @if (yearPnLAfterCharges > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCharges, 2))</div>
+                            </div>
+                        </div>
+
+                <div id="@(collapseID2)" class="panel-collapse collapse">
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Account</th>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Sell Date</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        @foreach (var transaction in Model.realisedPnLs)
+                        {
+                            if(transaction.Type != "Delivery")
+                            {
+                                continue;
+                            }
+                            i++;
+                                        if (transaction.SellDate.Year != yearrow.SellDate.Year)
+                                            continue;
+                                        double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@("Delivery-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                <td class="tg-57iy">@transaction.Account</td>
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+
+                                }
+                                @if (transaction.PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@("Delivery-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                    </table>
+                    
+                </div>
+            }
+            </div>
+            <div id="Deliverymonthlypnl" class="tab-pane fade">
+                @foreach (var yearrow in DeliverymonthlyrealisedPnL)
+                    {
+                        double yearPnLPercent = System.Math.Round((yearrow.PnL * 100 / yearrow.TotalCost), 2);
+                        double yearPnLAfterCharges = System.Math.Round((yearrow.PnL - yearrow.TotalCharges), 2);
+
+                        double yearPnLAfterChargesPercent = System.Math.Round((yearPnLAfterCharges * 100 / yearrow.TotalCost), 2);
+                        string collapseID4 = "Deliverycollapse" + yearrow.SellDate.Year+yearrow.SellDate.Month;
+                        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID4)">
+                            <div class="row font-weight-bold text-muted">
+                                <div class="col-sm-2 small">Month-Year</div>
+                                <div class="col-sm-2 small">Total Cost</div>
+                                <div class="col-sm-2 small">Sell Value</div>
+                                <div class="col-sm-2 small">PnL</div>
+                                <div class="col-sm-2 small">PnL(After Charges)</div>
+                                <div class="col-sm-2 small">Total Charges</div>
+                            </div>
+                            <div class="row font-weight-bolder text-white">
+                                <div class="col-sm-2" style="font-weight: 800;">@(yearrow.SellDate.ToString("MMMM"))-@(yearrow.SellDate.Year)</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.SellValue, 2))</div>
+                                @if (yearrow.PnL > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                @if (yearPnLAfterCharges > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCharges, 2))</div>
+                            </div>
+                        </div>
+
+                        <div id="@(collapseID4)" class="panel-collapse collapse">
+                            <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                                <tr>
+                                    <th class="tg-amwm">Account</th>
+                                    <th class="tg-amwm">Name</th>
+                                    <th class="tg-amwm">Sell Date</th>
+                                    <th class="tg-amwm">Quantity</th>
+                                    <th class="tg-amwm">Buy Price</th>
+                                    <th class="tg-amwm">Sell Price</th>
+                                    <th class="tg-amwm">Dividend</th>
+                                    <th class="tg-amwm">Total Cost</th>
+                                    <th class="tg-amwm">Sell Value</th>
+                                    <th class="tg-amwm">Profit/Loss</th>
+                                    <th class="tg-amwm">Profit/Loss After Charges</th>
+                                    <th class="tg-amwm">Total Charges</th>
+                                </tr>
+                                @foreach (var transaction in Model.realisedPnLs)
+                                {
+                                    if(transaction.Type != "Delivery")
+                                    {
+                                        continue;
+                                    }
+                                    i++;
+                                    if ((transaction.SellDate.Year.ToString()+transaction.SellDate.Month.ToString()) != (yearrow.SellDate.Year.ToString()+yearrow.SellDate.Month.ToString()))
+                                        continue;
+                                    double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                                    <tr data-toggle="modal" data-target="#@("Delivery-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                        <td class="tg-57iy">@transaction.Account</td>
+                                        <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                        <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                        @if (transaction.PnL > 0)
+                                        {
+                                            @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                            {
+                                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                            {
+                                                <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+
+                                        }
+                                        @if (transaction.PnLAfterCharges > 0)
+                                        {
+                                            <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                        }
+                                        <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                                    </tr>
+                                    <div id="@("Delivery-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                        <!-- Modal -->
+
+                                        <div class="modal-dialog modal-lg">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="p-3 mb-2 bg-dark">
+                                                        <div class="row font-weight-bold text-muted">
+                                                            <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                        </div>
+                                                        <div class="row font-weight-bold text-muted">
+                                                            <div class="col small">Total Charges</div>
+                                                            <div class="col small">Brokerage</div>
+                                                            <div class="col small">STT</div>
+                                                            <div class="col small">Transaction Charges</div>
+                                                            <div class="col small">GST</div>
+                                                            <div class="col small">SEBI Charges</div>
+                                                            <div class="col small">Stamp Duty</div>
+                                                            <div class="col small">Other Charges</div>
+                                                        </div>
+                                                        <div class="row font-weight-bolder text-white">
+                                                            <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+                            </table>
+                        </div>
+                    }
+            </div>
+        </div>
+
+    </div>
+     <!-- ################################ -->
+    <!--           INTRADAY TAB           -->
+    <!-- ################################ -->
+    <div id="intraday" class="tab-pane fade">
+
+        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse3">
+                <div class="row font-weight-bold text-muted">
+                    <div class="col-sm-2 small">Total Cost</div>
+                    <div class="col-sm-2 small">Sell Value</div>
+                    <div class="col-sm-4 small">PnL</div>
+                    <div class="col-sm-2 small">PnL(After Charges)</div>
+                    <div class="col-sm-2 small">Total Charges</div>
+                </div>
+                <div class="row font-weight-bolder text-white">
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(IntradayTotalCost, 2))</div>
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(IntradaySellValue, 2))</div>
+                    @if (IntradayTotalPnL > 0)
+                    {
+                        <div class="col-sm-4" style="font-weight: 800;color: #5b9a5d;">@(IntradayTotalPnL)(@(IntradayTotalPnLPercent)%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-4" style="font-weight: 800;color: #e25f5b;">@(IntradayTotalPnL)(@(IntradayTotalPnLPercent)%)</div>
+                    }
+                    @if (IntradayTotalPnLAfterCharges > 0)
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(IntradayTotalPnLAfterCharges)(@(IntradayTotalPnLAfterChargesPercent)%)</div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(IntradayTotalPnLAfterCharges)(@(IntradayTotalPnLAfterChargesPercent)%)</div>
+                    }
+                    <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(IntradayTotalCharges, 2))</div>
+                </div>
+            </div>
+        <!-- Nested nav inside Intraday -->
+        <ul class="nav nav-pills" style="margin-top:15px;">
+            <li class="active"><a data-toggle="pill" href="#Intradayall">Realised PnL</a></li>
+            <li><a data-toggle="pill" href="#Intradaystocks">Realised PnL StockWise</a></li>
+            <li><a data-toggle="pill" href="#Intradayyearlypnl">Yearly PnL</a></li>
+            <li><a data-toggle="pill" href="#Intradaymonthlypnl">Monthly PnL</a></li>
+        </ul>
+
+        <!-- Nested Intraday tab content -->
+        <div class="tab-content" style="margin-top:15px;">
+            <div id="Intradayall" class="tab-pane fade in active">
+                <span class="SearchSpanInd"><input id="Intradayrealisedsearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Account</th>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Sell Date</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        <tbody id="Intradayrealisedbody">
+                        @foreach (var transaction in Model.realisedPnLs)
+                        {
+                            if(transaction.Type != "Intraday")
+                            {
+                                continue;
+                            }
+                            i++;
+
+                            double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                <td class="tg-57iy">@transaction.Account</td>
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+
+                                }
+                                @if (transaction.PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                        </tbody>
+                    </table>
+            </div>
+            <div id="Intradaystocks" class="tab-pane fade">
+                <span class="SearchSpanInd"><input id="Intradayrealisedstockssearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">% Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        <tbody id="Intradayrealisedstocksbody">
+                        @foreach (var transaction in Model.IntradayrealisedPnLStocks)
+                        {
+                            i++;
+
+                            double PnLAfterCharges = System.Math.Round((transaction.PnL - transaction.TotalCharges), 2);
+                            double PnLAfterChargesPercent = System.Math.Round((PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@("Intraday-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:",""))">
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2))</td>
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy positive" style="color: #5b9a5d;">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2))</td>
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%</td>
+                                    }
+
+                                }
+                                @if (PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(PnLAfterCharges) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@("Intraday-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:",""))" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                                <div class="row font-weight-bold text-muted">&nbsp;
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    &nbsp;
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Transaction Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Account</div>
+                                                    <div class="col small">Date</div>
+                                                    <div class="col small">Quantity</div>
+                                                    <div class="col small">Buy Price</div>
+                                                    <div class="col small">Sell Price</div>
+                                                    <div class="col small">Profit/Loss</div>
+                                                    <div class="col small">Profit/Loss After Charges</div>
+                                                    <div class="col small">Total Charges</div>
+                                                </div>
+                                                @foreach(var stock in Model.realisedPnLs.Where(x=>x.Symbol == transaction.Symbol).ToList())
+                                                {
+                                                    if(stock.Type != "Intraday")
+                                                    {
+                                                        continue;
+                                                    }
+                                                    <div class="row font-weight-bolder text-white">
+                                                        <div class="col">@stock.Account</div>
+                                                        <div class="col">@stock.SellDate.ToShortDateString()</div>
+                                                        <div class="col">@(System.Math.Round(@stock.Quantity, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.BuyPrice, 2))</div>
+                                                        <div class="col">@(System.Math.Round(@stock.SellPrice, 2))</div>
+                                                        @if (stock.PnL > 0)
+                                                        {
+                                                            <div class="col" style="font-weight: bolder; color: #5b9a5d;">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@stock.PnL, 2))</div>
+                                                        }
+                                                        @if ((stock.PnL - stock.TotalCharges) > 0)
+                                                        {
+                                                            <div class="col" style="font-weight: bolder; color: #5b9a5d;">@(System.Math.Round((stock.PnL-stock.TotalCharges), 2))</div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <div class="col" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((stock.PnL-stock.TotalCharges), 2))</div>
+                                                        }
+                                                        <div class="col">@(System.Math.Round(@stock.TotalCharges, 2))</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                        </tbody>
+                    </table>
+            </div>
+            <div id="Intradayyearlypnl" class="tab-pane fade">
+                @foreach (var yearrow in IntradayyearlyrealisedPnL)
+                    {
+                        double yearPnLPercent = System.Math.Round((yearrow.PnL * 100 / yearrow.TotalCost), 2);
+                        double yearPnLAfterCharges = System.Math.Round((yearrow.PnL - yearrow.TotalCharges), 2);
+
+                        double yearPnLAfterChargesPercent = System.Math.Round((yearPnLAfterCharges * 100 / yearrow.TotalCost), 2);
+                        string collapseID3 = "Intradaycollapse" + yearrow.SellDate.Year;
+                        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID3)">
+                            <div class="row font-weight-bold text-muted">
+                                <div class="col-sm-2 small">Year</div>
+                                <div class="col-sm-2 small">Total Cost</div>
+                                <div class="col-sm-2 small">Sell Value</div>
+                                <div class="col-sm-2 small">PnL</div>
+                                <div class="col-sm-2 small">PnL(After Charges)</div>
+                                <div class="col-sm-2 small">Total Charges</div>
+                            </div>
+                            <div class="row font-weight-bolder text-white">
+                                <div class="col-sm-2" style="font-weight: 800;">@(yearrow.SellDate.Year)</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.SellValue, 2))</div>
+                                @if (yearrow.PnL > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                @if (yearPnLAfterCharges > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCharges, 2))</div>
+                            </div>
+                        </div>
+
+                <div id="@(collapseID3)" class="panel-collapse collapse">
+                    <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                        <tr>
+                            <th class="tg-amwm">Account</th>
+                            <th class="tg-amwm">Name</th>
+                            <th class="tg-amwm">Sell Date</th>
+                            <th class="tg-amwm">Quantity</th>
+                            <th class="tg-amwm">Buy Price</th>
+                            <th class="tg-amwm">Sell Price</th>
+                            <th class="tg-amwm">Dividend</th>
+                            <th class="tg-amwm">Total Cost</th>
+                            <th class="tg-amwm">Sell Value</th>
+                            <th class="tg-amwm">Profit/Loss</th>
+                            <th class="tg-amwm">Profit/Loss After Charges</th>
+                            <th class="tg-amwm">Total Charges</th>
+                        </tr>
+                        @foreach (var transaction in Model.realisedPnLs)
+                        {
+                            if(transaction.Type != "Intraday")
+                            {
+                                continue;
+                            }
+                            i++;
+                                        if (transaction.SellDate.Year != yearrow.SellDate.Year)
+                                            continue;
+                                        double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                            <tr data-toggle="modal" data-target="#@("Intraday-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                <td class="tg-57iy">@transaction.Account</td>
+                                <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                @if (transaction.PnL > 0)
+                                {
+                                    @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                }
+                                else
+                                {
+                                    @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                    {
+                                        <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                    }
+
+                                }
+                                @if (transaction.PnLAfterCharges > 0)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                }
+                                <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                            </tr>
+                            <div id="@("Intraday-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                </div>
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col small">Total Charges</div>
+                                                    <div class="col small">Brokerage</div>
+                                                    <div class="col small">STT</div>
+                                                    <div class="col small">Transaction Charges</div>
+                                                    <div class="col small">GST</div>
+                                                    <div class="col small">SEBI Charges</div>
+                                                    <div class="col small">Stamp Duty</div>
+                                                    <div class="col small">Other Charges</div>
+                                                </div>
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        }
+                    </table>
+                    
+                </div>
+            }
+            </div>
+            <div id="Intradaymonthlypnl" class="tab-pane fade">
+                @foreach (var yearrow in IntradaymonthlyrealisedPnL)
+                    {
+                        double yearPnLPercent = System.Math.Round((yearrow.PnL * 100 / yearrow.TotalCost), 2);
+                        double yearPnLAfterCharges = System.Math.Round((yearrow.PnL - yearrow.TotalCharges), 2);
+
+                        double yearPnLAfterChargesPercent = System.Math.Round((yearPnLAfterCharges * 100 / yearrow.TotalCost), 2);
+                        string collapseID5 = "Intradaycollapse" + yearrow.SellDate.Year+yearrow.SellDate.Month;
+                        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID5)">
+                            <div class="row font-weight-bold text-muted">
+                                <div class="col-sm-2 small">Month-Year</div>
+                                <div class="col-sm-2 small">Total Cost</div>
+                                <div class="col-sm-2 small">Sell Value</div>
+                                <div class="col-sm-2 small">PnL</div>
+                                <div class="col-sm-2 small">PnL(After Charges)</div>
+                                <div class="col-sm-2 small">Total Charges</div>
+                            </div>
+                            <div class="row font-weight-bolder text-white">
+                                <div class="col-sm-2" style="font-weight: 800;">@(yearrow.SellDate.ToString("MMMM"))-@(yearrow.SellDate.Year)</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.SellValue, 2))</div>
+                                @if (yearrow.PnL > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearrow.PnL)(@(yearPnLPercent)%)</div>
+                                }
+                                @if (yearPnLAfterCharges > 0)
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                else
+                                {
+                                    <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(yearPnLAfterCharges)(@(yearPnLAfterChargesPercent)%)</div>
+                                }
+                                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCharges, 2))</div>
+                            </div>
+                        </div>
+
+                        <div id="@(collapseID5)" class="panel-collapse collapse">
+                            <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                                <tr>
+                                    <th class="tg-amwm">Account</th>
+                                    <th class="tg-amwm">Name</th>
+                                    <th class="tg-amwm">Sell Date</th>
+                                    <th class="tg-amwm">Quantity</th>
+                                    <th class="tg-amwm">Buy Price</th>
+                                    <th class="tg-amwm">Sell Price</th>
+                                    <th class="tg-amwm">Dividend</th>
+                                    <th class="tg-amwm">Total Cost</th>
+                                    <th class="tg-amwm">Sell Value</th>
+                                    <th class="tg-amwm">Profit/Loss</th>
+                                    <th class="tg-amwm">Profit/Loss After Charges</th>
+                                    <th class="tg-amwm">Total Charges</th>
+                                </tr>
+                                @foreach (var transaction in Model.realisedPnLs)
+                                {
+                                    if(transaction.Type != "Intraday")
+                                    {
+                                        continue;
+                                    }
+                                    i++;
+                                    if ((transaction.SellDate.Year.ToString()+transaction.SellDate.Month.ToString()) != (yearrow.SellDate.Year.ToString()+yearrow.SellDate.Month.ToString()))
+                                        continue;
+                                    double PnLAfterChargesPercent = System.Math.Round((transaction.PnLAfterCharges * 100 / transaction.TotalCost), 2);
+                                    <tr data-toggle="modal" data-target="#@("Intraday-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                                        <td class="tg-57iy">@transaction.Account</td>
+                                        <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                                        <td class="tg-57iy">@(transaction.SellDate.ToShortDateString())</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.SellPrice, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                                        <td class="tg-57iy">@(System.Math.Round(@transaction.SellValue, 2))</td>
+                                        @if (transaction.PnL > 0)
+                                        {
+                                            @if ((System.Math.Round(((transaction.PnL) / transaction.TotalCost), 2)) > 10)
+                                            {
+                                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            @if ((System.Math.Round(((@transaction.PnL) / 100), 2)) < -10)
+                                            {
+                                                <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+                                            else
+                                            {
+                                                <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round(@transaction.PnL, 2)) (@(System.Math.Round(((@transaction.PnL * 100) / @transaction.TotalCost), 2))%)</td>
+                                            }
+
+                                        }
+                                        @if (transaction.PnLAfterCharges > 0)
+                                        {
+                                            <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                        }
+                                        else
+                                        {
+                                            <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round(transaction.PnLAfterCharges, 2)) (@PnLAfterChargesPercent%)</td>
+                                        }
+                                        <td class="tg-57iy">@(System.Math.Round(transaction.TotalCharges, 2))</td>
+
+                                    </tr>
+                                    <div id="@("Intraday-"+transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)" class="modal fade" role="dialog">
+                                        <!-- Modal -->
+
+                                        <div class="modal-dialog modal-lg">
+
+                                            <!-- Modal content-->
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h4 class="modal-title">@transaction.Name (@transaction.Symbol)</h4>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="p-3 mb-2 bg-dark">
+                                                        <div class="row font-weight-bold text-muted">
+                                                            <div class="col-sm-12 bold">Charges Breakdown</div>
+                                                        </div>
+                                                        <div class="row font-weight-bold text-muted">
+                                                            <div class="col small">Total Charges</div>
+                                                            <div class="col small">Brokerage</div>
+                                                            <div class="col small">STT</div>
+                                                            <div class="col small">Transaction Charges</div>
+                                                            <div class="col small">GST</div>
+                                                            <div class="col small">SEBI Charges</div>
+                                                            <div class="col small">Stamp Duty</div>
+                                                            <div class="col small">Other Charges</div>
+                                                        </div>
+                                                        <div class="row font-weight-bolder text-white">
+                                                            <div class="col">@(System.Math.Round(@transaction.TotalCharges, 4))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.Brokerage, 4))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.STT, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.TranCharges, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.GST, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.SEBICharges, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.StampDuty, 2))</div>
+                                                            <div class="col">@(System.Math.Round(@transaction.OtherCharges, 2))</div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
+                                    </div>
+                                }
+                            </table>
+                        </div>
+                    }
+            </div>
+        </div>
+
+    </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#realisedsearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#realisedstockssearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedstocksbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#Deliveryrealisedsearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#Deliveryrealisedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#Deliveryrealisedstockssearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#Deliveryrealisedstocksbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#Intradayrealisedsearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#Intradayrealisedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#Intradayrealisedstockssearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#Intradayrealisedstocksbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>

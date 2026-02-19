@@ -1,0 +1,1018 @@
+﻿@{
+    ViewData["Title"] = "Summary";
+    int i = 0;
+    string Type = "";
+    List<BreakDownRow> stockbreakdown;
+    @model PortfolioResponseModel;
+    List<Portfolio> dict = Model.AllLists["Consolidated"];
+
+    double consolidatedTotalCost = 0;
+    double consolidatedCurrentValue = 0;
+    double consolidateddividend = 0;
+    double consolidatedChange = 0;
+    foreach(var items in dict)
+    {
+        consolidatedTotalCost = consolidatedTotalCost + items.TotalCost;
+        consolidatedCurrentValue = consolidatedCurrentValue + items.CurrentValue;
+        consolidateddividend = consolidateddividend + items.Dividend;
+        consolidatedChange = consolidatedChange + items.Change;
+    }
+
+    double consolidatedPnL = consolidatedCurrentValue - consolidatedTotalCost + consolidateddividend;
+
+    Model.MarketCapHistory.Add(new MarketCapHistory()
+            {
+                Month = DateTime.Now,
+                Invested = new MarketCapHistoryRow() { StockMarket = System.Math.Round(consolidatedTotalCost,2) },
+                Current = new MarketCapHistoryRow() { StockMarket = System.Math.Round(consolidatedCurrentValue,2) },
+                StockMarketPercent =System.Math.Round(((consolidatedCurrentValue - consolidatedTotalCost) * 100 / consolidatedTotalCost), 2)
+            });
+
+     // Sort transactions by PnL in descending order
+    var sortedTransactions = dict
+        .OrderByDescending(x => x.PnL)
+        .ToList();
+
+    // Select the top 20
+    // Calculate total PnL
+    var totalPnL = sortedTransactions.Sum(x => x.PnL);
+
+    // Select the top 20
+    var top20 = sortedTransactions
+        .Take(9)
+        .Select(x => new ChartData
+        {
+            Label = x.Symbol,
+            Value = System.Math.Round(x.PnL,2),
+            Percent = $"{((double)x.PnL / totalPnL * 100).ToString("0.00")}%"
+        })
+        .ToList();
+
+    // Calculate the sum of remaining PnL and add as "Others"
+    var othersSum = sortedTransactions.Skip(9).Sum(x => x.PnL);
+    if (othersSum > 0)
+    {
+        top20.Add(new ChartData
+        {
+            Label = "Others",
+            Value = System.Math.Round(othersSum,2),
+            Percent = $"{((double)othersSum / totalPnL * 100).ToString("0.00")}%"
+        });
+    }
+
+    List<ChartData> ChartData = top20;
+
+    sortedTransactions = dict
+        .OrderByDescending(x => x.TotalCost)
+        .ToList();
+
+    // Select the top 20
+    // Calculate total PnL
+    var totalCost = sortedTransactions.Sum(x => x.TotalCost);
+
+    // Select the top 20
+    top20 = sortedTransactions
+        .Take(9)
+        .Select(x => new ChartData
+        {
+            Label = x.Symbol,
+            Value = System.Math.Round(x.TotalCost,2),
+            Percent = $"{((double)x.TotalCost / totalCost * 100).ToString("0.00")}%"
+        })
+        .ToList();
+
+    // Calculate the sum of remaining PnL and add as "Others"
+    othersSum = sortedTransactions.Skip(9).Sum(x => x.TotalCost);
+    if (othersSum > 0)
+    {
+        top20.Add(new ChartData
+        {
+            Label = "Others",
+            Value = System.Math.Round(othersSum,2),
+            Percent = $"{((double)othersSum / totalCost * 100).ToString("0.00")}%"
+        });
+    }
+
+    List<ChartData> ChartData2 = top20;
+
+    var sortedTransactionsByProfitPercentage = dict
+                .Select(x => new
+                {
+                    x.Symbol,
+                    ProfitPercentage = System.Math.Round((x.PnL * 100) / x.TotalCost, 2)
+                })
+                .OrderByDescending(x => x.ProfitPercentage)
+                .ToList();
+
+   
+
+    // Select the top 20
+    top20 = sortedTransactionsByProfitPercentage
+        .Take(10)
+        .Select(x => new ChartData
+        {
+            Label = x.Symbol,
+            Value = x.ProfitPercentage
+        })
+        .ToList();
+
+   
+
+    List<ChartData> ChartData3 = top20;
+
+    sortedTransactions = dict
+        .OrderByDescending(x => x.Change)
+        .ToList();
+
+    // Select the top 20
+
+    // Select the top 20
+    top20 = sortedTransactions
+        .Take(8)
+        .Select(x => new ChartData
+        {
+            Label = x.Symbol,
+            Value = System.Math.Round(x.Change,2)
+        })
+        .ToList();
+
+    List<ChartData> ChartData4 = top20;
+
+    sortedTransactionsByProfitPercentage = dict
+                .Select(x => new
+                {
+                    x.Symbol,
+                    ProfitPercentage = System.Math.Round(100 * x.Change / (x.CurrentValue - x.Change), 2)
+                })
+                .OrderByDescending(x => x.ProfitPercentage)
+                .ToList();
+
+    // Select the top 20
+
+    // Select the top 20
+    top20 = sortedTransactionsByProfitPercentage
+        .Take(8)
+        .Select(x => new ChartData
+        {
+            Label = x.Symbol,
+            Value = System.Math.Round(x.ProfitPercentage,2)
+        })
+        .ToList();
+
+    List<ChartData> ChartData5 = top20;
+
+    sortedTransactions = dict
+        .OrderBy(x => x.Change)
+        .ToList();
+
+    // Select the top 20
+
+    // Select the top 20
+    top20 = sortedTransactions
+        .Take(8)
+        .Select(x => new ChartData
+        {
+            Label = x.Symbol,
+            Value = System.Math.Round(x.Change,2)
+        })
+        .ToList();
+
+    List<ChartData> ChartData6 = top20;
+
+    sortedTransactionsByProfitPercentage = dict
+                .Select(x => new
+                {
+                    x.Symbol,
+                    ProfitPercentage = System.Math.Round(100 * x.Change / (x.CurrentValue - x.Change), 2)
+                })
+                .OrderBy(x => x.ProfitPercentage)
+                .ToList();
+
+    // Select the top 20
+
+    // Select the top 20
+    top20 = sortedTransactionsByProfitPercentage
+        .Take(8)
+        .Select(x => new ChartData
+        {
+            Label = x.Symbol,
+            Value = System.Math.Round(x.ProfitPercentage,2)
+        })
+        .ToList();
+
+    List<ChartData> ChartData7 = top20;
+
+    //chart 10
+    var mutualfunds = Model.AllLists["Mutual Fund"];
+    var stocks = Model.AllLists["Free Stock"];
+    stocks.AddRange(Model.AllLists["Long Term"]);
+    stocks.AddRange(Model.AllLists["Stock SIP"]);
+    stocks.AddRange(Model.AllLists[ "Trading"]);
+
+    var etf = Model.AllLists["ETF SIP"];
+
+    var usstocks = Model.AllLists["US Free Stocks"];
+    usstocks.AddRange(Model.AllLists["US Stocks"]);
+
+    var usEtf = Model.AllLists["US ETF"];
+
+    // Select the top 20
+    // Calculate total PnL
+    totalPnL = mutualfunds.Sum(x => x.PnL);
+    totalCost = mutualfunds.Sum(x => x.TotalCost);
+
+    top20 = new List<ChartData>(){
+        new ChartData()
+        {
+            Label = "Mutual Fund",
+            Value = totalPnL
+        } };
+
+    totalPnL = stocks.Sum(x => x.PnL);
+    top20.Add( new ChartData() { Label = "Stocks", Value = totalPnL } ); 
+
+    totalPnL = etf.Sum(x => x.PnL);
+    top20.Add( new ChartData() { Label = "ETF", Value = totalPnL } );
+
+    totalPnL = usstocks.Sum(x => x.PnL);
+    top20.Add( new ChartData() { Label = "US Stocks", Value = totalPnL } );
+
+    totalPnL = usEtf.Sum(x => x.PnL);
+    top20.Add( new ChartData() { Label = "US ETF", Value = totalPnL } );
+
+    double totalValue = top20.Sum(item => item.Value);
+
+    // Update Percent for each item
+    foreach (var item in top20)
+    {
+        item.Percent = (totalValue == 0) ? "0" : ((item.Value / totalValue) * 100).ToString(("0.00"))+"%";
+    }
+    List<ChartData> ChartData10 = top20;
+
+    top20 = new List<ChartData>(){
+        new ChartData()
+        {
+            Label = "Mutual Fund",
+            Value = totalCost
+        } };
+
+    totalCost = stocks.Sum(x => x.TotalCost);
+    top20.Add( new ChartData() { Label = "Stocks", Value = totalCost } ); 
+
+    totalCost = etf.Sum(x => x.TotalCost);
+    top20.Add( new ChartData() { Label = "ETF", Value = totalCost } );
+
+    totalCost = usstocks.Sum(x => x.TotalCost);
+    top20.Add( new ChartData() { Label = "US Stocks", Value = totalCost } );
+
+    totalCost = usEtf.Sum(x => x.TotalCost);
+    top20.Add( new ChartData() { Label = "US ETF", Value = totalCost } );
+
+    totalValue = top20.Sum(item => item.Value);
+
+    // Update Percent for each item
+    foreach (var item in top20)
+    {
+        item.Percent = (totalValue == 0) ? "0" : ((item.Value / totalValue) * 100).ToString(("0.00"))+"%";
+    }
+    List<ChartData> ChartData11 = top20;
+
+
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script> 
+
+<div class="text-center row" style="width: 99%;display: block; margin: 9px;">
+    
+            <div class="container-fluid px-4">
+                       
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Market Cap History
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="myAreaChart" width="100%" height="300"></canvas></div>
+                                </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Profit History
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="myAreaChart2" width="100%" height="300"></canvas></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                             <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Investment
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="donutChart2" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Profit
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="donutChart" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+                           
+                            <!--<div class="col-xl-4">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Profit %
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="donutChart3" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>-->
+                        </div>
+                         <div class="row">
+                             <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Investment
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="donutChart4" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Profit
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="donutChart3" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+                           
+                            <!--<div class="col-xl-4">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Profit %
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="donutChart3" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>-->
+                        </div>
+
+                        <div class="row">
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Top Gainers Today
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="barchart1" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+                            <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Percentage Top Gainers Today
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="barchart2" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+                           
+                            
+                        </div>
+                        <div class="row">
+                        <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Top Losers Today
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="barchart3" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+
+                             <div class="col-xl-6">
+                                <div class="card mb-4">
+                                    <div class="card-header bg-dark" style="color: #bbb;">
+                                        <i class="fas fa-chart-area me-1"></i>
+                                        Percentage Top Losers Today
+                                    </div>
+                                    <div class="card-body bg-dark"><canvas id="barchart4" width="100%" height="40"></canvas></div>
+                                    </div>
+                            </div>
+                        </div>
+            </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#search").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#consolidatedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+
+    // Data passed from the model to JavaScript
+        const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData.Select(x => x.Label + " ("+x.Percent+")")));
+        const values = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData.Select(x => x.Value)));
+
+        const total = values.reduce((sum, value) => sum + value, 0);
+
+        // Chart.js setup
+        const ctx = document.getElementById('donutChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: labels, // Labels for the chart
+                datasets: [{
+                    data: values, // PnL values
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ], // Color palette (add more if needed)
+                    hoverBackgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                        position: 'right',
+                    },
+                plugins: {
+                    
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const label = tooltipItem.label || '';
+                                const value = tooltipItem.raw;
+                                const percentage = ((value / total) * 100).toFixed(2); // Calculate percentage
+                                return `${label}: ${value} (${percentage}%)`
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Data passed from the model to JavaScript
+        const labels2 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData2.Select(x => x.Label + " ("+x.Percent+")")));
+        const values2 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData2.Select(x => x.Value)));
+
+        const total2 = values2.reduce((sum, value) => sum + value, 0);
+
+        // Chart.js setup
+        const ctx2 = document.getElementById('donutChart2').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: labels2, // Labels for the chart
+                datasets: [{
+                    data: values2, // PnL values
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ], // Color palette (add more if needed)
+                    hoverBackgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                        position: 'right',
+                    },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const label = tooltipItem.label || '';
+                                const value = tooltipItem.raw;
+                                return `${label}: ${value}`
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        
+
+        // Bar Chart Example
+var ctx4 = document.getElementById("barchart1");
+// Prepare data from the model
+
+    // Extract labels and data
+    const labels4 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData4.Select(x => x.Label)));
+    const values4 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData4.Select(x => x.Value)));
+
+    // Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.max(...values4) * 1.1); // Add 10% padding for visual clarity
+
+var myLineChart = new Chart(ctx4, {
+  type: 'bar',
+  data: {
+    labels: labels4,
+    datasets: [{
+      label: "Top Gainers Today",
+      backgroundColor: "rgba(2,117,216,1)",
+      borderColor: "rgba(2,117,216,1)",
+      data: values4,
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          display: true,
+          callback: function (value, index, values) {
+            let label = value;
+            let maxLength = 10; // Max visible characters
+            return label.length > maxLength ? label.substring(0, maxLength) + "..." : label;
+          }
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: maxYValue,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          display: true
+        }
+      }],
+    },
+    plugins: {
+    legend: false
+  }
+  }
+});
+
+// Bar Chart Example
+var ctx5 = document.getElementById("barchart2");
+// Prepare data from the model
+
+    // Extract labels and data
+    const labels5 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData5.Select(x => x.Label)));
+    const values5 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData5.Select(x => x.Value)));
+
+    // Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.max(...values5) * 1.1); // Add 10% padding for visual clarity
+
+var myLineChart = new Chart(ctx5, {
+  type: 'bar',
+  data: {
+    labels: labels5,
+    datasets: [{
+      label: "Percent Top Gainers Today",
+      backgroundColor: "rgba(2,117,216,1)",
+      borderColor: "rgba(2,117,216,1)",
+      data: values5,
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          display: true,
+          callback: function (value, index, values) {
+            let label = value;
+            let maxLength = 10; // Max visible characters
+            return label.length > maxLength ? label.substring(0, maxLength) + "..." : label;
+          }
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: maxYValue,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          display: true
+        }
+      }],
+    },
+    plugins: {
+    legend: false
+  }
+  }
+});
+
+// Bar Chart Example
+var ctx6 = document.getElementById("barchart3");
+// Prepare data from the model
+
+    // Extract labels and data
+    const labels6 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData6.Select(x => x.Label)));
+    const values6 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData6.Select(x => x.Value)));
+
+    // Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.min(...values6) * 1.1); // Add 10% padding for visual clarity
+
+var myLineChart = new Chart(ctx6, {
+  type: 'bar',
+  data: {
+    labels: labels6,
+    datasets: [{
+      label: "Top Losers Today",
+      backgroundColor: "rgba(2,117,216,1)",
+      borderColor: "rgba(2,117,216,1)",
+      data: values6,
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          display: true,
+          callback: function (value, index, values) {
+            let label = value;
+            let maxLength = 10; // Max visible characters
+            return label.length > maxLength ? label.substring(0, maxLength) + "..." : label;
+          }
+        }
+      }],
+      yAxes: [{
+       ticks: {
+          min: 0,
+          max: maxYValue,
+          maxTicksLimit: 5,
+          reverse: true // Reverse the direction of negative values
+        },
+        gridLines: {
+          display: true
+        },
+        beginAtZero: true, 
+      }],
+    },
+    plugins: {
+    legend: false
+  }
+  }
+});
+
+// Bar Chart Example
+var ctx7 = document.getElementById("barchart4");
+// Prepare data from the model
+
+    // Extract labels and data
+    const labels7 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData7.Select(x => x.Label)));
+    const values7 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData7.Select(x => x.Value)));
+
+    // Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.min(...values7) * 1.1); // Add 10% padding for visual clarity
+
+var myLineChart = new Chart(ctx7, {
+  type: 'bar',
+  data: {
+    labels: labels7,
+    datasets: [{
+      label: "Percent Top Losers Today",
+      backgroundColor: "rgba(2,117,216,1)",
+      borderColor: "rgba(2,117,216,1)",
+      data: values7,
+    }],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'month'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          display: true,
+          callback: function (value, index, values) {
+            let label = value;
+            let maxLength = 10; // Max visible characters
+            return label.length > maxLength ? label.substring(0, maxLength) + "..." : label;
+          }
+        }
+      }],
+      yAxes: [{
+        ticks: {
+          min: 0,
+          max: maxYValue,
+          maxTicksLimit: 5,
+          reverse: true // Reverse the direction of negative values
+        },
+        gridLines: {
+          display: true
+        },
+        beginAtZero: true, 
+      }],
+    },
+    plugins: {
+    legend: false
+  }
+  }
+});
+
+// Area Chart Example
+var ctx8 = document.getElementById("myAreaChart");
+var labels8 = @Html.Raw(Json.Serialize(Model.MarketCapHistory.Select(x => x.Month.ToString("MMM yyyy"))));
+var data8 = @Html.Raw(Json.Serialize(Model.MarketCapHistory.Select(x => x.Invested.StockMarket)));
+var currentdata8 = @Html.Raw(Json.Serialize(Model.MarketCapHistory.Select(x => x.Current.StockMarket)));
+var percent8 = @Html.Raw(Json.Serialize(Model.MarketCapHistory.Select(x => x.StockMarketPercent)));
+
+// Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.max(Math.max(...data8),Math.max(...currentdata8)) * 1.1); // Add 10% padding for visual clarity
+
+
+var myLineChart = new Chart(ctx8, {
+  type: 'line',
+  data: {
+    labels: labels8,
+    datasets: [{
+      label: "Buy Price",
+      lineTension: 0.3,
+      backgroundColor: "rgba(2,117,216,0.2)",
+      borderColor: "rgba(2,117,216,1)",
+      pointRadius: 5,
+      pointBackgroundColor: "rgba(2,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: data8,
+    },
+    {
+      label: "Current Price",
+      lineTension: 0.3,
+      backgroundColor: "rgba(200,117,216,0.2)",
+      borderColor: "rgba(200,117,216,1)",
+      pointRadius: 5,
+      pointBackgroundColor: "rgba(200,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "rgba(200,117,216,1)",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: currentdata8,
+    },
+    {
+        label: "Percent",
+        backgroundColor: "rgba(0,0,0,0)", // Transparent background
+        borderColor: "rgba(0,0,0,0)", // Transparent line
+        pointBackgroundColor: "rgba(0,0,0,0)", // Transparent points
+        data: percent8,
+    }
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'date'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 7
+        }
+      }],
+      yAxes: [{
+          beginAtZero: false,
+        ticks: {
+          min: 600000,
+          max: maxYValue,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          color: "rgba(0, 0, 0, .125)",
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      mode: 'index', // Show all tooltips at the same x-axis point
+      intersect: false // Do not restrict hover to a single point
+    },
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+
+// Area Chart Example
+var ctx9 = document.getElementById("myAreaChart2");
+var labels9 = @Html.Raw(Json.Serialize(Model.MarketCapHistory.Select(x => x.Month.ToString("MMM yyyy"))));
+var data9 = @Html.Raw(Json.Serialize(Model.MarketCapHistory.Select(x => x.Current.StockMarket-x.Invested.StockMarket)));
+
+
+// Calculate dynamic Y-axis max
+    var maxYValue = Math.ceil(Math.max(...data9) * 1.1); // Add 10% padding for visual clarity
+
+
+var myLineChart = new Chart(ctx9, {
+  type: 'line',
+  data: {
+    labels: labels9,
+    datasets: [{
+      label: "Profit",
+      lineTension: 0.3,
+      backgroundColor: "rgba(2,117,216,0.2)",
+      borderColor: "rgba(2,117,216,1)",
+      pointRadius: 5,
+      pointBackgroundColor: "rgba(2,117,216,1)",
+      pointBorderColor: "rgba(255,255,255,0.8)",
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: "rgba(2,117,216,1)",
+      pointHitRadius: 50,
+      pointBorderWidth: 2,
+      data: data9,
+    }
+    ],
+  },
+  options: {
+    scales: {
+      xAxes: [{
+        time: {
+          unit: 'date'
+        },
+        gridLines: {
+          display: false
+        },
+        ticks: {
+          maxTicksLimit: 7
+        }
+      }],
+      yAxes: [{
+          beginAtZero: false,
+        ticks: {
+          min: 100000,
+          max: maxYValue,
+          maxTicksLimit: 5
+        },
+        gridLines: {
+          color: "rgba(0, 0, 0, .125)",
+        }
+      }],
+    },
+    legend: {
+      display: false
+    },
+    tooltips: {
+      mode: 'index', // Show all tooltips at the same x-axis point
+      intersect: false // Do not restrict hover to a single point
+    },
+    responsive: true,
+    maintainAspectRatio: false
+  }
+});
+
+// Data passed from the model to JavaScript
+        const labels10 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData10.Select(x => x.Label+ " ("+x.Percent+")" )));
+        const values10 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData10.Select(x => x.Value)));
+
+        const total10 = values10.reduce((sum, value) => sum + value, 0);
+
+        // Chart.js setup
+        const ctx10 = document.getElementById('donutChart3').getContext('2d');
+        new Chart(ctx10, {
+            type: 'doughnut',
+            data: {
+                labels: labels10, // Labels for the chart
+                datasets: [{
+                    data: values10, // PnL values
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ], // Color palette (add more if needed)
+                    hoverBackgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                        position: 'right',
+                    },
+                plugins: {
+                    
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const label = tooltipItem.label || '';
+                                const value = tooltipItem.raw;
+                                return `${label}: ${value}`
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Data passed from the model to JavaScript
+        const labels11 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData11.Select(x => x.Label + " ("+x.Percent+")")));
+        const values11 = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ChartData11.Select(x => x.Value)));
+
+        const total11 = values11.reduce((sum, value) => sum + value, 0);
+
+        // Chart.js setup
+        const ctx11 = document.getElementById('donutChart4').getContext('2d');
+        new Chart(ctx11, {
+            type: 'doughnut',
+            data: {
+                labels: labels11, // Labels for the chart
+                datasets: [{
+                    data: values11, // PnL values
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ], // Color palette (add more if needed)
+                    hoverBackgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40',
+                        '#FF5733', '#33FF57', '#3357FF', '#F5A623', '#B10DC9', '#FF851B',
+                        '#85144b', '#2ECC40', '#39CCCC', '#01FF70', '#FFDC00', '#F012BE',
+                        '#3D9970', '#111111', '#AAAAAA'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                legend: {
+                        position: 'right',
+                    },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                const label = tooltipItem.label || '';
+                                const value = tooltipItem.raw;
+                                return `${label}: ${value}`
+                            }
+                        }
+                    }
+                }
+            }
+        });
+</script>

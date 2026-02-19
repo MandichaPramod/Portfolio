@@ -1,0 +1,185 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+    
+    @model List<Portfolio>;
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+<div class="container">
+<div class="row">
+    <div class="col">
+        <div class="panel panel-default">
+            <div class="panel-heading">Buy</div>
+            <div class="panel-body">
+                <form asp-controller="BuySell" asp-action="Buy">
+                    <div class="form-group">
+                        <label for="Symbol">Stock Symbol:</label>
+                        <input type="text" class="form-control" id="Symbol" placeholder="Enter Stock Symbol" name="Symbol">
+                    </div>
+                     <div class="form-group">
+                        <label for="Account">Broker:</label>
+                        <input type="text" class="form-control" id="Account" placeholder="Enter broker Name" name="Account">
+                    </div>
+                    <div class="form-group">
+                        <label for="Qty">Quantity:</label>
+                        <input type="number" step="any" class="form-control" id="Qty" placeholder="Enter Quantity" name="Qty">
+                    </div>
+                    <div class="form-group">
+                        <label for="BuyPrice">Buy Price:</label>
+                        <input type="number" step="any" class="form-control" id="BuyPrice" placeholder="Enter Buy Price" name="BuyPrice">
+                    </div>
+                    <div class="form-group">
+                        <label for="BuyDate">Buy Date:</label>
+                        <input type="date" class="form-control" id="BuyDate" placeholder="Enter Buy Date" name="BuyDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="Portfolio">Portfolio:</label>
+                        <input type="text" class="form-control" id="Portfolio" placeholder="Enter Portfolio" name="Portfolio">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+    <div class="col"></div>
+</div>
+<div class="row">
+    <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse1">
+        <div class="row font-weight-bold text-white">
+            <div class="col">Buy Stocks</div>
+        </div>
+        
+    </div>
+       
+    <div id="collapse1" class="panel-collapse collapse">
+            <span class="SearchSpanInd"><input id="search" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+        <table id="tg-GjUK1" class="tg sortable" style="width:100%">
+            <tr>
+                <th class="tg-amwm">Symbol</th>
+                <th class="tg-amwm">Name</th>
+                <th class="tg-amwm">Action</th>
+            </tr>
+            <tbody id="consolidatedbody">
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td data-title="Symbol" class="NameAlign tg-57iy">@item.Symbol</td>
+                        <td data-title="Name" class="tg-57iy">@item.Name</td>
+                        
+                    <td data-title="Action" class="tg-57iy">
+                        <div style="display: flex;">
+                            <a href="#" class="btn btn-success btn-sm" title="Buy" data-toggle="modal" data-target="#@(item.Symbol.Replace("NSE:","")+"Buy")">
+                                <span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                            <a href="#" class="btn btn-danger btn-sm" title="Sell" data-toggle="modal" data-target="#@(item.Symbol.Replace("NSE:","")+"Sell")">
+                                <span class="glyphicon glyphicon-minus"></span>
+                            </a>
+                        </div>
+                        </td>
+                        <!--Buy Modal-->
+                        <div id="@(item.Symbol.Replace("NSE:","")+"Buy")" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@item.Name (@item.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="panel panel-default">
+                                                <div class="panel-heading">Buy</div>
+                                                <div class="panel-body">
+                                                    <form asp-controller="BuySell" asp-action="Buy">
+                                                        <div class="form-group">
+                                                            <label for="Symbol" hidden>Stock Symbol:</label>
+                                                            <input type="text" class="form-control" id="Symbol" placeholder="Enter Stock Symbol" name="Symbol" value="@item.Symbol" hidden>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="Account">Broker:</label>
+                                                            <input type="text" class="form-control" id="Account" placeholder="Enter broker Name" name="Account">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="Qty">Quantity:</label>
+                                                            <input type="number" step="any" class="form-control" id="Qty" placeholder="Enter Quantity" name="Qty">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="BuyPrice">Buy Price:</label>
+                                                            <input type="number" step="any" class="form-control" id="BuyPrice" placeholder="Enter Buy Price" name="BuyPrice">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="BuyDate">Buy Date:</label>
+                                                            <input type="date" class="form-control" id="BuyDate" placeholder="Enter Buy Date" name="BuyDate">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="Portfolio">Portfolio:</label>
+                                                            <input type="text" class="form-control" id="Portfolio" placeholder="Enter Portfolio" name="Portfolio">
+                                                        </div>
+                                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                        <!--Sell Modal-->
+                        <div id="@(item.Symbol.Replace("NSE:","")+"Sell")" class="modal fade" role="dialog">
+                                <!-- Modal -->
+
+                                <div class="modal-dialog modal-lg">
+
+                                    <!-- Modal content-->
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title">@item.Name (@item.Symbol)</h4>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="p-3 mb-2 bg-dark">
+                                                <div class="row font-weight-bold text-muted">
+                                                    <div class="col-sm-12 bold">Sell</div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+
+                            </div>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#search").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#consolidatedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>

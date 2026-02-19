@@ -1,0 +1,269 @@
+﻿@{
+    ViewData["Title"] = "DividendHistory";
+
+    @model DividendHistoryResponseModel;
+
+    int i = 0;
+    double TotalDividend = 0;
+
+    var yearlyDividends = new List<DividendHistoryRow>();
+    var monthlyDividends = new List<DividendHistoryRow>();
+
+    foreach (var items in Model.dividendHistory)
+    {
+        TotalDividend = TotalDividend + items.Dividend;
+
+        if(yearlyDividends.Any(x=>x.Date.Year == items.Date.Year))
+        {
+            var pf = yearlyDividends.First(x => x.Date.Year ==  items.Date.Year);
+
+                    
+            pf.Dividend = pf.Dividend+items.Dividend;
+        }
+        else
+        {
+            yearlyDividends.Add(new DividendHistoryRow()
+                    {
+                        Dividend = items.Dividend,
+                        Date = items.Date
+                    });
+        }
+        if(monthlyDividends.Any(x=>x.Date.Year == items.Date.Year && x.Date.Month == items.Date.Month))
+        {
+            var pf = monthlyDividends.First(x => x.Date.Year ==  items.Date.Year && x.Date.Month == items.Date.Month);
+
+                    
+            pf.Dividend = pf.Dividend+items.Dividend;
+        }
+        else
+        {
+            monthlyDividends.Add(new DividendHistoryRow()
+                    {
+                        Dividend = items.Dividend,
+                        Date = items.Date
+                    });
+        }
+    }
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+
+<div class="text-center row" style="width: 99%;display: block; margin: 9px;">
+    <div>
+        <!--Realised PnL-->
+        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse1">
+            <div class="row font-weight-bold text-muted">
+                <div class="col small">Total Dividend</div>
+            </div>
+            <div class="row font-weight-bolder text-white">
+                <div class="col-sm" style="font-weight: 800;">@(System.Math.Round(TotalDividend, 2))</div>
+            </div>
+        </div>
+        
+        <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="pill" href="#all">Dividend History</a></li>
+            <li><a data-toggle="pill" href="#stocks">Dividend History StockWise</a></li>
+            <li><a data-toggle="pill" href="#yearlypnl">Yearly Dividend History</a></li>
+            <li><a data-toggle="pill" href="#monthlypnl">Monthly Dividend History</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="all" class="tab-pane fade in active">
+                <span class="SearchSpanInd"><input id="realisedsearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Symbol</th>
+                        <th class="tg-amwm">Company</th>
+                        <th class="tg-amwm">Date</th>
+                        <th class="tg-amwm">Dividend</th>
+                    </tr>
+                    <tbody id="realisedbody">
+                    @foreach (var transaction in Model.dividendHistory)
+                    {
+                        i++;
+
+                        
+                        <tr data-toggle="modal" data-target="#@(transaction.Symbol.Replace("NSE:","")+i)">
+                            <td class="tg-57iy">@transaction.Symbol</td>
+                            <td class="tg-57iy">@transaction.Company</td>
+                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div id="stocks" class="tab-pane fade">
+                <span class="SearchSpanInd"><input id="realisedstockssearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Symbol</th>
+                        <th class="tg-amwm">Company</th>
+                        <th class="tg-amwm">Dividend</th>
+                    </tr>
+                    <tbody id="realisedstocksbody">
+                    @foreach (var transaction in Model.dividendHistoryStocks)
+                    {
+                        i++;
+
+                        <tr data-toggle="modal" data-target="#@(transaction.Symbol.Replace("NSE:",""))">
+                            <td class="tg-57iy">@transaction.Symbol</td>
+                            <td class="tg-57iy">@transaction.Company</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+
+                        </tr>
+                        <div id="@(transaction.Symbol.Replace("NSE:",""))" class="modal fade" role="dialog">
+                            <!-- Modal -->
+
+                            <div class="modal-dialog modal-lg">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">@transaction.Company (@transaction.Symbol)</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="p-3 mb-2 bg-dark">
+                                            
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col-sm-12 bold">Dividend Breakdown</div>
+                                            </div>
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col small">Date</div>
+                                                <div class="col small">Dividend</div>
+                                            </div>
+                                            @foreach(var stock in Model.dividendHistory.Where(x=>x.Symbol == transaction.Symbol).ToList())
+                                            {
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@stock.Date.ToShortDateString()</div>
+                                                    <div class="col">@(System.Math.Round(@stock.Dividend, 2))</div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div id="yearlypnl" class="tab-pane fade">
+                
+                @foreach (var yearrow in yearlyDividends)
+                {
+                    string collapseID = "collapse" + yearrow.Date.Year;
+                    <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                        <div class="row font-weight-bold text-muted">
+                            <div class="col-sm-2 small">Year</div>
+                            <div class="col-sm-2 small">Total Dividend</div>
+                        </div>
+                        <div class="row font-weight-bolder text-white">
+                            <div class="col-sm-2" style="font-weight: 800;">@(yearrow.Date.Year)</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Dividend, 2))</div>
+                        </div>
+                    </div>
+
+            <div id="@(collapseID)" class="panel-collapse collapse">
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Symbol</th>
+                        <th class="tg-amwm">Company</th>
+                        <th class="tg-amwm">Date</th>
+                        <th class="tg-amwm">Dividend</th>
+                    </tr>
+                    @foreach (var transaction in Model.dividendHistory)
+                    {
+                        i++;
+                                    if (transaction.Date.Year != yearrow.Date.Year)
+                                        continue;
+                        <tr data-toggle="modal" data-target="#@(transaction.Symbol.Replace("NSE:","")+i)">
+                           <td class="tg-57iy">@transaction.Symbol</td>
+                            <td class="tg-57iy">@transaction.Company</td>
+                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+
+                        </tr>
+                       
+                    }
+                </table>
+            </div>
+        }
+               
+            </div>
+
+            <div id="monthlypnl" class="tab-pane fade">
+
+                @foreach (var yearrow in monthlyDividends)
+                {
+                   
+                    string collapseID = "collapse" + yearrow.Date.Year+yearrow.Date.Month;
+                    <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                        <div class="row font-weight-bold text-muted">
+                            <div class="col-sm-2 small">Month-Year</div>
+                            <div class="col-sm-2 small">Total Dividend</div>
+                        </div>
+                        <div class="row font-weight-bolder text-white">
+                            <div class="col-sm-2" style="font-weight: 800;">@(yearrow.Date.ToString("MMMM"))-@(yearrow.Date.Year)</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Dividend, 2))</div>
+                        </div>
+                    </div>
+
+                    <div id="@(collapseID)" class="panel-collapse collapse">
+                        <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                            <tr>
+                                <th class="tg-amwm">Symbol</th>
+                                <th class="tg-amwm">Company</th>
+                                <th class="tg-amwm">Date</th>
+                                <th class="tg-amwm">Dividend</th>
+                            </tr>
+                            @foreach (var transaction in Model.dividendHistory)
+                            {
+                                i++;
+                                if ((transaction.Date.Year.ToString()+transaction.Date.Month.ToString()) != (yearrow.Date.Year.ToString()+yearrow.Date.Month.ToString()))
+                                    continue;
+                                <tr data-toggle="modal" data-target="#@(transaction.Symbol.Replace("NSE:","")+i)">
+                                     <td class="tg-57iy">@transaction.Symbol</td>
+                                    <td class="tg-57iy">@transaction.Company</td>
+                                    <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                                    <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+
+                                </tr>
+                               
+                            }
+                        </table>
+                    </div>
+                }
+
+            </div>
+        
+       
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#realisedsearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#realisedstockssearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedstocksbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>

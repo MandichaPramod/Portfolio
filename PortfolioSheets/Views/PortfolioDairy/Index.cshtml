@@ -1,0 +1,147 @@
+﻿@{
+    ViewData["Title"] = "Portfolio Dairy";
+
+    @model List<BreakDownRow>;
+
+    double total = 0;
+
+    var yearlyStocks = new Dictionary<string,Dictionary<string,double>>();
+    var monthlyStocks = new Dictionary<string,Dictionary<string,double>>();
+    List<BreakDownRow> stockbreakdown= Model;
+
+    List<string> Portfolios = new List<string>();
+
+    foreach (var items in stockbreakdown)
+    {
+        if(!Portfolios.Any(x=>x==items.Portfolio))
+        {
+            Portfolios.Add(items.Portfolio);
+        }
+    }
+
+    foreach (var items in stockbreakdown)
+    {
+
+        if(yearlyStocks.ContainsKey(items.Date.Year.ToString()))
+        {
+            var pf = yearlyStocks[items.Date.Year.ToString()];
+
+            if(pf.ContainsKey(items.Portfolio))
+            {
+                pf[items.Portfolio]=pf[items.Portfolio]+(items.TotalCost);
+            }
+            else
+            {
+                pf[items.Portfolio] = (items.TotalCost);
+            }
+        }
+        else
+        {
+            yearlyStocks[items.Date.Year.ToString()] = new Dictionary<string, double> { };
+            var pf = yearlyStocks[items.Date.Year.ToString()];
+
+            foreach(var Portfolio in Portfolios)
+            {
+                pf[Portfolio] = 0;
+            }
+            pf[items.Portfolio] = (items.TotalCost);
+
+        }
+        if(monthlyStocks.ContainsKey($"{items.Date.Month}-{items.Date.Year}"))
+        {
+           var pf = monthlyStocks[$"{items.Date.Month}-{items.Date.Year}"];
+
+            if(pf.ContainsKey(items.Portfolio))
+            {
+                pf[items.Portfolio]=pf[items.Portfolio]+(items.TotalCost);
+            }
+            else
+            {
+                pf[items.Portfolio] = (items.TotalCost);
+            }
+        }
+        else
+        {
+            monthlyStocks[$"{items.Date.Month}-{items.Date.Year}"] = new Dictionary<string, double> { };
+            var pf = monthlyStocks[$"{items.Date.Month}-{items.Date.Year}"];
+            foreach(var Portfolio in Portfolios)
+            {
+                pf[Portfolio] = 0;
+            }
+            pf[items.Portfolio] = (items.TotalCost);
+
+        }
+    }
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+
+<div class="text-center row" style="width: 99%;display: block; margin: 9px;">
+    <div>
+        <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="pill" href="#yearly">Yearly</a></li>
+            <li><a data-toggle="pill" href="#monthly">Monthly</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="yearly" class="tab-pane fade in active">
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Year</th>
+                        @foreach (var portfolio in Portfolios)
+                        {
+                            <th class="tg-amwm">@portfolio</th>
+                        }
+                        <th class="tg-amwm">Total</th>
+                    </tr>
+                    @foreach (var yearrow in yearlyStocks)
+                    {
+                        <tr>
+                            <td class="tg-57iy">@yearrow.Key</td>
+                            @foreach (var keyvaluepair in yearrow.Value)
+                            {
+                                total = total + System.Math.Round(keyvaluepair.Value, 2);
+                                <td class="tg-57iy">@System.Math.Round(keyvaluepair.Value,2)</td>
+                            }
+                            <td class="tg-57iy">@System.Math.Round(total,2)</td>
+                            @{
+                                total = 0; // Reset total after displaying it
+                            }
+                        </tr>
+                    }
+                
+               </table>
+            </div>
+
+            <div id="monthly" class="tab-pane fade">
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Month</th>
+                        @foreach (var portfolio in Portfolios)
+                        {
+                            <th class="tg-amwm">@portfolio</th>
+                        }
+                        <th class="tg-amwm">Total</th>
+                    </tr>
+                    @foreach (var yearrow in monthlyStocks)
+                    {
+                        <tr>
+                            <td class="tg-57iy">@yearrow.Key</td>
+                            @foreach (var keyvaluepair in yearrow.Value)
+                            {
+                                total = total + System.Math.Round(keyvaluepair.Value, 2);
+                                <td class="tg-57iy">@System.Math.Round(keyvaluepair.Value,2)</td>
+                            }
+                            <td class="tg-57iy">@System.Math.Round(total,2)</td>
+                            @{
+                                total = 0; // Reset total after displaying it
+                            }
+                        </tr>
+                    }
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

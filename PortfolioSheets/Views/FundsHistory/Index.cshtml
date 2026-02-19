@@ -1,0 +1,291 @@
+﻿@{
+    ViewData["Title"] = "FundsHistory";
+
+    @model FundsHistoryResponseModel;
+
+    int i = 0;
+    double TotalDebit = 0;
+    double TotalCredit = 0;
+
+    var yearly = new List<FundsHistoryRow>();
+    var monthly = new List<FundsHistoryRow>();
+
+    foreach (var items in Model.fundsHistory)
+    {
+        TotalDebit = TotalDebit + items.Debit;
+        TotalCredit = TotalCredit + items.Credit;
+
+        if(yearly.Any(x=>x.Date.Year == items.Date.Year))
+        {
+            var pf = yearly.First(x => x.Date.Year ==  items.Date.Year);
+
+                    
+            pf.Debit = pf.Debit+items.Debit;
+            pf.Credit = pf.Credit+items.Credit;
+        }
+        else
+        {
+            yearly.Add(new FundsHistoryRow()
+                    {
+                        Debit = items.Debit,
+                        Credit = items.Credit,
+                        Date = items.Date
+                    });
+        }
+        if(monthly.Any(x=>x.Date.Year == items.Date.Year && x.Date.Month == items.Date.Month))
+        {
+            var pf = monthly.First(x => x.Date.Year ==  items.Date.Year && x.Date.Month == items.Date.Month);
+
+                    
+             pf.Debit = pf.Debit+items.Debit;
+            pf.Credit = pf.Credit+items.Credit;
+        }
+        else
+        {
+            monthly.Add(new FundsHistoryRow()
+                    {
+                        Debit = items.Debit,
+                        Credit = items.Credit,
+                        Date = items.Date
+                    });
+        }
+    }
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+
+<div class="text-center row" style="width: 99%;display: block; margin: 9px;">
+    <div>
+        <!--Realised PnL-->
+        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse1">
+            <div class="row font-weight-bold text-muted">
+                <div class="col small">Total Debit</div>
+                <div class="col small">Total Credit</div>
+                <div class="col small">Total Balance</div>
+            </div>
+            <div class="row font-weight-bolder text-white">
+                <div class="col-sm" style="font-weight: 800;">@(System.Math.Round(TotalDebit, 2))</div>
+                <div class="col-sm" style="font-weight: 800;">@(System.Math.Round(TotalCredit, 2))</div>
+                <div class="col-sm" style="font-weight: 800;">@(System.Math.Round((TotalCredit - TotalDebit), 2))</div>
+            </div>
+        </div>
+        
+        <ul class="nav nav-pills">
+            <li class="active"><a data-toggle="pill" href="#all">Funds History</a></li>
+            <li><a data-toggle="pill" href="#stocks">Funds History AccountsWise</a></li>
+            <li><a data-toggle="pill" href="#yearlypnl">Yearly History</a></li>
+            <li><a data-toggle="pill" href="#monthlypnl">Monthly History</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="all" class="tab-pane fade in active">
+                <span class="SearchSpanInd"><input id="realisedsearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Account</th>
+                        <th class="tg-amwm">Date</th>
+                        <th class="tg-amwm">Debit</th>
+                        <th class="tg-amwm">Credit</th>
+                    </tr>
+                    <tbody id="realisedbody">
+                    @foreach (var transaction in Model.fundsHistory)
+                    {
+                        i++;
+
+                        
+                        <tr data-toggle="modal" data-target="#@(transaction.Account.Replace("NSE:","")+i)">
+                            <td class="tg-57iy">@transaction.Account</td>
+                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Debit, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Credit, 2))</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div id="stocks" class="tab-pane fade">
+                <span class="SearchSpanInd"><input id="realisedstockssearch" type="text" class="form-control" placeholder="Search" maxlength="15" style="color: white;background-color: black;" /></span>
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Account</th>
+                        <th class="tg-amwm">Debit</th>
+                        <th class="tg-amwm">Credit</th>
+                        <th class="tg-amwm">Balance</th>
+                    </tr>
+                    <tbody id="realisedstocksbody">
+                    @foreach (var transaction in Model.fundsHistoryAccount)
+                    {
+                        i++;
+
+                        <tr data-toggle="modal" data-target="#@(transaction.Account.Replace("NSE:",""))">
+                            <td class="tg-57iy">@transaction.Account</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Debit, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Credit, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round((transaction.Credit-transaction.Debit), 2))</td>
+
+                        </tr>
+                        <div id="@(transaction.Account.Replace("NSE:",""))" class="modal fade" role="dialog">
+                            <!-- Modal -->
+
+                            <div class="modal-dialog modal-lg">
+
+                                <!-- Modal content-->
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h4 class="modal-title">@transaction.Account</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="p-3 mb-2 bg-dark">
+                                            
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col-sm-12 bold">Funds Breakdown</div>
+                                            </div>
+                                            <div class="row font-weight-bold text-muted">
+                                                <div class="col small">Date</div>
+                                                <div class="col small">Debit</div>
+                                                <div class="col small">Credit</div>
+                                            </div>
+                                            @foreach(var stock in Model.fundsHistory.Where(x=>x.Account == transaction.Account).ToList())
+                                            {
+                                                <div class="row font-weight-bolder text-white">
+                                                    <div class="col">@stock.Date.ToShortDateString()</div>
+                                                    <div class="col">@(System.Math.Round(@stock.Debit, 2))</div>
+                                                    <div class="col">@(System.Math.Round(@stock.Credit, 2))</div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <div id="yearlypnl" class="tab-pane fade">
+                
+                @foreach (var yearrow in yearly)
+                {
+                    string collapseID = "collapse" + yearrow.Date.Year;
+                    <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                        <div class="row font-weight-bold text-muted">
+                            <div class="col-sm-2 small">Year</div>
+                            <div class="col-sm-2 small">Total Debit</div>
+                            <div class="col-sm-2 small">Total Credit</div>
+                            <div class="col-sm-2 small">Balance</div>
+                        </div>
+                        <div class="row font-weight-bolder text-white">
+                            <div class="col-sm-2" style="font-weight: 800;">@(yearrow.Date.Year)</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Debit, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Credit, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round((yearrow.Credit - yearrow.Debit), 2))</div>
+                        </div>
+                    </div>
+
+            <div id="@(collapseID)" class="panel-collapse collapse">
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Account</th>
+                        <th class="tg-amwm">Date</th>
+                        <th class="tg-amwm">Debit</th>
+                        <th class="tg-amwm">Credit</th>
+                    </tr>
+                    @foreach (var transaction in Model.fundsHistory)
+                    {
+                        i++;
+                                    if (transaction.Date.Year != yearrow.Date.Year)
+                                        continue;
+                        <tr data-toggle="modal" data-target="#@(transaction.Account.Replace("NSE:","")+i)">
+                           <td class="tg-57iy">@transaction.Account</td>
+                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Debit, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Credit, 2))</td>
+
+                        </tr>
+                       
+                    }
+                </table>
+            </div>
+        }
+               
+            </div>
+
+            <div id="monthlypnl" class="tab-pane fade">
+
+                @foreach (var yearrow in monthly)
+                {
+                   
+                    string collapseID = "collapse" + yearrow.Date.Year+yearrow.Date.Month;
+                    <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                        <div class="row font-weight-bold text-muted">
+                            <div class="col-sm-2 small">Month-Year</div>
+                            <div class="col-sm-2 small">Total Debit</div>
+                            <div class="col-sm-2 small">Total Credit</div>
+                            <div class="col-sm-2 small">Balance</div>
+                        </div>
+                        <div class="row font-weight-bolder text-white">
+                            <div class="col-sm-2" style="font-weight: 800;">@(yearrow.Date.ToString("MMMM"))-@(yearrow.Date.Year)</div>
+                             <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Debit, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Credit, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round((yearrow.Credit - yearrow.Debit), 2))</div>
+                        </div>
+                    </div>
+
+                    <div id="@(collapseID)" class="panel-collapse collapse">
+                        <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                            <tr>
+                                 <th class="tg-amwm">Account</th>
+                                <th class="tg-amwm">Date</th>
+                                <th class="tg-amwm">Debit</th>
+                                <th class="tg-amwm">Credit</th>
+                            </tr>
+                            @foreach (var transaction in Model.fundsHistory)
+                            {
+                                i++;
+                                if ((transaction.Date.Year.ToString()+transaction.Date.Month.ToString()) != (yearrow.Date.Year.ToString()+yearrow.Date.Month.ToString()))
+                                    continue;
+                                <tr data-toggle="modal" data-target="#@(transaction.Account.Replace("NSE:","")+i)">
+                           <td class="tg-57iy">@transaction.Account</td>
+                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Debit, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Credit, 2))</td>
+
+                                </tr>
+                               
+                            }
+                        </table>
+                    </div>
+                }
+
+            </div>
+        
+       
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#realisedsearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#realisedstockssearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedstocksbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>

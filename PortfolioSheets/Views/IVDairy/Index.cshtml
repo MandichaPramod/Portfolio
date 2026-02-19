@@ -1,0 +1,408 @@
+﻿@{
+    ViewData["Title"] = "Investment Dairy";
+
+    @model List<BreakDownRow>;
+
+    int i = 0;
+    double TotalCost = 0;
+    double CurrentValue = 0;
+    double TotalPnL = 0;
+    double Dividend = 0;
+    double DividendReinvest = 0;
+
+    var yearlyStocks = new List<BreakDownRow>();
+    var monthlyStocks = new List<BreakDownRow>();
+    List<BreakDownRow> stockbreakdown= Model;
+
+    foreach (var items in stockbreakdown)
+    {
+        TotalCost = TotalCost + items.TotalCost;
+        CurrentValue = CurrentValue + items.CurrentValue;
+        TotalPnL = CurrentValue - TotalCost;
+        Dividend = Dividend + items.Dividend;
+        DividendReinvest = DividendReinvest + items.DividendReinvestment;
+
+        if(yearlyStocks.Any(x=>x.Date.Year == items.Date.Year))
+        {
+            var pf = yearlyStocks.First(x => x.Date.Year ==  items.Date.Year);
+
+                    
+            pf.CurrentValue = pf.CurrentValue+items.CurrentValue;
+            pf.Dividend = pf.Dividend+items.Dividend;
+            pf.TotalCost = pf.TotalCost+items.TotalCost;
+            pf.DividendReinvestment = pf.DividendReinvestment+items.DividendReinvestment;
+        }
+        else
+        {
+            yearlyStocks.Add(new BreakDownRow()
+            {
+                Date = items.Date,
+                CurrentValue = items.CurrentValue,
+                Dividend = items.Dividend,
+                TotalCost = items.TotalCost,
+                DividendReinvestment = items.DividendReinvestment,
+            });
+        }
+        if(monthlyStocks.Any(x=>x.Date.Year == items.Date.Year && x.Date.Month == items.Date.Month))
+        {
+            var pf = monthlyStocks.First(x => x.Date.Year ==  items.Date.Year && x.Date.Month == items.Date.Month);
+
+                    
+            pf.CurrentValue = pf.CurrentValue+items.CurrentValue;
+            pf.Dividend = pf.Dividend+items.Dividend;
+            pf.TotalCost = pf.TotalCost+items.TotalCost;
+            pf.DividendReinvestment = pf.DividendReinvestment+items.DividendReinvestment;
+        }
+        else
+        {
+            monthlyStocks.Add(new BreakDownRow()
+            {
+                Date = items.Date,
+                CurrentValue = items.CurrentValue,
+                Dividend = items.Dividend,
+                TotalCost = items.TotalCost,
+                DividendReinvestment = items.DividendReinvestment,
+            });
+        }
+    }
+}
+<!--<meta http-equiv="refresh" content="120" />-->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="~/js/Sortable.js"></script>
+
+<style>
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #5b9a5d;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+</style>
+
+<div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin: 9px 9px 0 9px; padding: 10px;">
+    <label style="margin: 0; font-weight: bold; color: white;">Bonus/Split Adjusted</label>
+    <label class="switch" style="margin: 0;">
+        <input type="checkbox" id="bonusSplitToggle" />
+        <span class="slider"></span>
+    </label>
+</div>
+
+<div class="text-center row" style="width: 99%;display: block; margin: 9px;">
+    <div>
+        <!--Realised PnL-->
+
+        <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#collapse1">
+            <div class="row font-weight-bold text-muted">
+                <div class="col-sm-2 small">Total Cost</div>
+                <div class="col-sm-2 small">Current Value</div>
+                <div class="col-sm-4 small">Total PnL</div>
+                <div class="col-sm-2 small">Dividend</div>
+                <div class="col-sm-2 small">Dividend Reinvestment</div>
+            </div>
+            <div class="row font-weight-bolder text-white">
+                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(TotalCost, 2))</div>
+                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(CurrentValue, 2))</div>
+                @if (TotalPnL > 0)
+                {
+                    <div class="col-sm-4" style="font-weight: 800;color: #5b9a5d;">@(TotalPnL)</div>
+                }
+                else
+                {
+                    <div class="col-sm-4" style="font-weight: 800;color: #e25f5b;">@(TotalPnL)</div>
+                }
+                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(Dividend, 2))</div>
+                <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(DividendReinvest, 2))</div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <ul class="nav nav-pills">
+                <li class="active"><a data-toggle="pill" href="#yearly">Yearly</a></li>
+                <li><a data-toggle="pill" href="#monthly">Monthly</a></li>
+            </ul>
+        </div>
+        <div class="tab-content">
+            <div id="yearly" class="tab-pane fade in active">
+                
+                @foreach (var yearrow in yearlyStocks)
+                {
+                    string collapseID = "collapse" + yearrow.Date.Year;
+                    <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                        <div class="row font-weight-bold text-muted">
+                            <div class="col-sm-2 small">Year</div>
+                            <div class="col-sm-2 small">Total Cost</div>
+                            <div class="col-sm-2 small">Current Value</div>
+                            <div class="col-sm-2 small">Total PnL</div>
+                            <div class="col-sm-2 small">Dividend</div>
+                            <div class="col-sm-2 small">Dividend Reinvestment</div>
+                        </div>
+                        <div class="row font-weight-bolder text-white">
+                            <div class="col-sm-2" style="font-weight: 800;">@(yearrow.Date.Year)</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.CurrentValue, 2))</div>
+                            @if ((yearrow.CurrentValue - yearrow.TotalCost) > 0)
+                            {
+                                <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost),2))(@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost)*100/yearrow.TotalCost,2)))</div>
+                            }
+                            else
+                            {
+                                <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost),2))(@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost)*100/yearrow.TotalCost,2)))</div>
+                            }
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Dividend, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.DividendReinvestment, 2))</div>
+                        </div>
+                    </div>
+
+            <div id="@(collapseID)" class="panel-collapse collapse">
+                <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                    <tr>
+                        <th class="tg-amwm">Account</th>
+                        <th class="tg-amwm">Name</th>
+                        <th class="tg-amwm">Date</th>
+                        <th class="tg-amwm">Quantity</th>
+                        <th class="tg-amwm">Buy Price</th>
+                        <th class="tg-amwm">Total Cost</th>
+                        <th class="tg-amwm">Current Value</th>
+                        <th class="tg-amwm">Profit/Loss</th>
+                        <th class="tg-amwm">Dividend</th>
+                        <th class="tg-amwm">Dividend Reinvestment</th>
+                        <th class="tg-amwm">Portfolio</th>
+                        <th class="tg-amwm">Tag</th>
+                        <th class="tg-amwm">Ageing</th>
+                    </tr>
+                    @foreach (var transaction in stockbreakdown)
+                    {
+                        i++;
+                        if (transaction.Date.Year != yearrow.Date.Year)
+                            continue;
+                        <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                            <td class="tg-57iy">@transaction.Account</td>
+                            <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>  
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.CurrentValue, 2))</td>
+                            
+                            @if ((transaction.CurrentValue-transaction.TotalCost) > 0)
+                            {
+                                @if ((System.Math.Round((((transaction.CurrentValue-transaction.TotalCost)) / transaction.TotalCost), 2)) > 10)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                            }
+                            else
+                            {
+                                @if ((System.Math.Round((((transaction.CurrentValue-transaction.TotalCost)) / 100), 2)) < -10)
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+
+                            }
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.DividendReinvestment, 2))</td>
+                            <td class="tg-57iy">@transaction.Portfolio</td>
+                            <td class="tg-57iy">@transaction.Tag</td>
+                            <td class="tg-57iy">@transaction.Ageing</td>
+
+                        </tr>
+                    }
+                </table>
+            </div>
+        }
+               
+            </div>
+
+            <div id="monthly" class="tab-pane fade">
+
+                @foreach (var yearrow in monthlyStocks)
+                {
+                    
+                    string collapseID = "collapse" + yearrow.Date.Year+yearrow.Date.Month;
+                    <div class="p-3 mb-2 bg-dark" data-toggle="collapse" data-target="#@(collapseID)">
+                        <div class="row font-weight-bold text-muted">
+                            <div class="col-sm-2 small">Month-Year</div>
+                            <div class="col-sm-2 small">Total Cost</div>
+                            <div class="col-sm-2 small">Current Value</div>
+                            <div class="col-sm-2 small">Total PnL</div>
+                            <div class="col-sm-2 small">Dividend</div>
+                            <div class="col-sm-2 small">Dividend Reinvestment</div>
+                        </div>
+                        <div class="row font-weight-bolder text-white">
+                            <div class="col-sm-2" style="font-weight: 800;">@(yearrow.Date.ToString("MMMM"))-@(yearrow.Date.Year)</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.TotalCost, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.CurrentValue, 2))</div>
+                            @if ((yearrow.CurrentValue - yearrow.TotalCost) > 0)
+                            {
+                                <div class="col-sm-2" style="font-weight: 800;color: #5b9a5d;">@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost),2))(@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost)*100/yearrow.TotalCost,2)))</div>
+                            }
+                            else
+                            {
+                                <div class="col-sm-2" style="font-weight: 800;color: #e25f5b;">@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost),2))(@(System.Math.Round((yearrow.CurrentValue - yearrow.TotalCost)*100/yearrow.TotalCost,2)))</div>
+                            }
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.Dividend, 2))</div>
+                            <div class="col-sm-2" style="font-weight: 800;">@(System.Math.Round(yearrow.DividendReinvestment, 2))</div>
+                        </div>
+                    </div>
+
+                    <div id="@(collapseID)" class="panel-collapse collapse">
+                        <table id="tg-GjUK2" class="tg sortable" style="width:100%">
+                            <tr>
+                                <th class="tg-amwm">Account</th>
+                                <th class="tg-amwm">Name</th>
+                                <th class="tg-amwm">Date</th>
+                                <th class="tg-amwm">Quantity</th>
+                                <th class="tg-amwm">Buy Price</th>
+                                <th class="tg-amwm">Total Cost</th>
+                                <th class="tg-amwm">Current Value</th>
+                                <th class="tg-amwm">Profit/Loss</th>
+                                <th class="tg-amwm">Dividend</th>
+                                <th class="tg-amwm">Dividend Reinvestment</th>
+                                <th class="tg-amwm">Portfolio</th>
+                                <th class="tg-amwm">Tag</th>
+                                <th class="tg-amwm">Ageing</th>
+                            </tr>
+                            @foreach (var transaction in stockbreakdown)
+                            {
+                                i++;
+                                if ((transaction.Date.Year.ToString()+transaction.Date.Month.ToString()) != (yearrow.Date.Year.ToString()+yearrow.Date.Month.ToString()))
+                                    continue;
+                                <tr data-toggle="modal" data-target="#@(transaction.Account.Replace(" ","")+transaction.Symbol.Replace("NSE:","")+i)">
+                            <td class="tg-57iy">@transaction.Account</td>
+                            <td class="tg-57iy">@transaction.Name (@transaction.Symbol)</td>
+                            <td class="tg-57iy">@(transaction.Date.ToShortDateString())</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Quantity, 4))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.BuyPrice, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.TotalCost, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.CurrentValue, 2))</td>
+                            
+                            @if ((transaction.CurrentValue-transaction.TotalCost) > 0)
+                            {
+                                @if ((System.Math.Round((((transaction.CurrentValue-transaction.TotalCost)) / transaction.TotalCost), 2)) > 10)
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy positive" style="font-weight: bold; color: #5b9a5d;">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                            }
+                            else
+                            {
+                                @if ((System.Math.Round((((transaction.CurrentValue-transaction.TotalCost)) / 100), 2)) < -10)
+                                {
+                                    <td class="tg-57iy" style="font-weight: bold;color: #e25f5b">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+                                else
+                                {
+                                    <td class="tg-57iy" style="color: #e25f5b">@(System.Math.Round((transaction.CurrentValue-transaction.TotalCost), 2)) (@(System.Math.Round((((transaction.CurrentValue-transaction.TotalCost) * 100) / @transaction.TotalCost), 2))%)</td>
+                                }
+
+                            }
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.Dividend, 2))</td>
+                            <td class="tg-57iy">@(System.Math.Round(@transaction.DividendReinvestment, 2))</td>
+                            <td class="tg-57iy">@transaction.Portfolio</td>
+                            <td class="tg-57iy">@transaction.Tag</td>
+                            <td class="tg-57iy">@transaction.Ageing</td>
+
+                        </tr>
+                              
+                            }
+                        </table>
+                    </div>
+                }
+
+            </div>
+        
+       
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        // Bonus/Split Adjusted Toggle Handler
+        $("#bonusSplitToggle").on("change", function () {
+            var isAdjusted = $(this).is(":checked");
+            
+            // Make API call to the same action method with the toggle parameter
+            $.ajax({
+                url: '@Url.Action("Index", "IVDairy")',
+                type: 'GET',
+                data: { bonusSplitAdjusted: isAdjusted },
+                success: function (response) {
+                    // Replace the entire page content with the response
+                    document.open();
+                    document.write(response);
+                    document.close();
+                },
+                error: function (xhr, status, error) {
+                    alert('Error loading data: ' + error);
+                    // Uncheck the toggle on error
+                    $("#bonusSplitToggle").prop("checked", !isAdjusted);
+                }
+            });
+        });
+
+        $("#realisedsearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+        $("#realisedstockssearch").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+                $("#realisedstocksbody tr").filter(function () {
+                $(this).toggle($(this).text()
+                    .toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+</script>
