@@ -27,10 +27,18 @@ namespace PortfolioSheets.Services
 
         private static SheetsService CreateConnection()
         {
-            GoogleCredential credential;
-            using (var stream = new FileStream("client_secret.json", FileMode.Open, FileAccess.Read))
+            var json = Environment.GetEnvironmentVariable("GOOGLE_SERVICE_ACCOUNT_JSON");
+
+            if (string.IsNullOrWhiteSpace(json))
             {
-                credential = GoogleCredential.FromStream(stream)
+                throw new InvalidOperationException("Google service account env var not set.");
+            }
+
+            GoogleCredential credential;
+            using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(json)))
+            {
+                credential = GoogleCredential
+                    .FromStream(stream)
                     .CreateScoped(Scopes);
             }
 
